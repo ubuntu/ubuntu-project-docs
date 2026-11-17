@@ -428,13 +428,16 @@ Finally, you can remove the binary package dependencies as well:
   rust-<X.Y>-clippy (>= ${binary:Version}),
 ```
 
-#### Modifying debian/config.toml.in
+#### Modifying debian/bootstrap.toml.in
+
+`bootstrap.toml.in` is a file that generates `bootstrap.toml`, used to configure how `rustc` is compiled.
+In versions of `rustc` before 1.87, this file was called `config.toml{.in}`.
 
 Remove the option declaring LLVM as a dynamically-linked library (as opposed to the default statically-linked library):
 
 ```diff
---- a/debian/config.toml.in
-+++ b/debian/config.toml.in
+--- a/debian/bootstrap.toml.in
++++ b/debian/bootstrap.toml.in
 @@ -68,9 +68,6 @@ profiler = false
 
  )dnl
@@ -450,8 +453,8 @@ Remove the option declaring LLVM as a dynamically-linked library (as opposed to 
 The lines pointing `rustc` to the proper system LLVM tools can be removed in favor of using the default vendored LLVM:
 
 ```diff
---- a/debian/config.toml.in
-+++ b/debian/config.toml.in
+--- a/debian/bootstrap.toml.in
++++ b/debian/bootstrap.toml.in
 @@ -31,25 +31,6 @@ optimized-compiler-builtins = false
  [install]
  prefix = "/usr/lib/rust-RUST_VERSION"
@@ -558,7 +561,7 @@ Y_PATH))
 It's no longer necessary to set certain configuration variables:
 
 ```diff
-@@ -257,8 +256,6 @@ debian/config.toml: debian/config.toml.in debian/rules debian/preconfigure.st
+@@ -257,8 +256,6 @@ debian/config.toml: debian/bootstrap.toml.in debian/rules debian/preconfigure.st
 amp
                 -DDEB_TARGET_GNU_TYPE="$(DEB_TARGET_GNU_TYPE)" \
                 -DMAKE_OPTIMISATIONS="$(MAKE_OPTIMISATIONS)" \
