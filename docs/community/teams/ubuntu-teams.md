@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+irc-team
 rocks-team
 hpc-team
 ```
@@ -51,7 +52,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 
 | Team name | Responsibility |
 | --- | --- |
-| [IRC team](https://wiki.ubuntu.com/IRC/IrcTeam) | Management of the Ubuntu IRC channels on Libera.chat |
+| {ref}`IRC team <irc-team>` | Management of the Ubuntu IRC channels on Libera.chat |
 | [Forums team](https://launchpad.net/~ubuntuforums-staff) | Management of `ubuntuforums.org` |
 | [Ubuntu News team](https://wiki.ubuntu.com/NewsTeam) | Gather and publish news on Ubuntu-related stories, and Posting to the Fridge and UWN |
 
