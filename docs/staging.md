@@ -22,6 +22,7 @@ staging/release-team/germinate
 staging/partner-archive
 staging/aa-museum
 staging/not-AA
+staging/maintscripts
 ```
 
 
