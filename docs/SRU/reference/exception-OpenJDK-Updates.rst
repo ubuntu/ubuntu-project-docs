@@ -63,7 +63,7 @@ Toolchain team:
    release first if the intermediate release, such as openjdk-24 is
    present in the archive:
    `openjdk-25-jdk-headless:native | openjdk-24-jdk-headless:native,`
--  Performs a no-change rebuild to validate bootstraping works in a
+-  Performs a no-change rebuild to validate bootstrapping works in a
    public ppa in `openjdk-r` team, e.g. `ppa:openjdk-r/openjdk-25`.
 -  Binary-copies the update packages to unapproved queue for the target
    releases:
