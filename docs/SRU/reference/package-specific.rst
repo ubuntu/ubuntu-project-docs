@@ -35,6 +35,7 @@ the Technical Board.
     :hidden:
 
     exception-Kernel-Updates
+    exception-AMD-ROCm-Updates
     exception-Apt-Updates
     exception-Azure-Proxy-Agent-Updates
     exception-Azure-VM-Utils-Updates
