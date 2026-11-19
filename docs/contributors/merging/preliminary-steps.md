@@ -17,7 +17,7 @@ Process overview:
 {ref}`How to do a merge <merging>`:
 :   1. {ref}`merge-preliminary-steps` (this article)
     1. {ref}`merge-process`
-    1. {ref}`merge-fix-the-changelog`
+    1. {ref}`merge-review-the-changelog`
     1. {ref}`merge-upload-a-ppa`
     1. {ref}`merge-test-the-new-build`
     1. {ref}`merge-git-ubuntu-merge-proposal`

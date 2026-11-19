@@ -16,7 +16,7 @@ Process overview:
 {ref}`How to do a merge <merging>`:
 :   1. {ref}`merge-preliminary-steps`
     1. {ref}`merge-process`
-    1. {ref}`merge-fix-the-changelog`
+    1. {ref}`merge-review-the-changelog`
     1. {ref}`merge-upload-a-ppa` (this article)
     1. {ref}`merge-test-the-new-build`
     1. {ref}`merge-git-ubuntu-merge-proposal`
@@ -86,23 +86,12 @@ Furthermore just like you, the sponsor needs to know about setting `-v` right an
 (merge-push-to-your-launchpad-repository)=
 ## Push to your Launchpad repository
 
-Now that the package builds successfully, push it to your Launchpad repository:
+The `submit` step of {ref}`git ubuntu deltarebase <merge-process>` pushes the branch and its tags for you.
+After a manual merge, once the package builds successfully, push it to your Launchpad repository:
 
 ```none
 git push <your-lp-username>
 ```
-
-You get an error message and a suggestion for how to set an `upstream` branch. For example:
-
-```none
-$ git push kstenerud
-fatal: The current branch merge-lp1802914-disco has no upstream branch.
-To push the current branch and set the remote as upstream, use
-
-    git push --set-upstream kstenerud merge-lp1802914-disco
-```
-
-Run the suggested command to push to your repository.
 
 
 (merge-push-your-lp-tags)=
@@ -116,13 +105,13 @@ $ git push <your-git-remote> old/ubuntu old/debian new/debian \
 For example:
 
 ```none
-$ git push git+ssh://kstenerud@git.launchpad.net/~kstenerud/ubuntu/+source/at \
+$ git push git+ssh://your-user@git.launchpad.net/~your-user/ubuntu/+source/at \
            old/ubuntu old/debian new/debian \
            reconstruct/3.1.20-3.1ubuntu2 \
            logical/3.1.20-3.1ubuntu2 \
            split/3.1.20-3.1ubuntu2
 
-To ssh://git.launchpad.net/~kstenerud/ubuntu/+source/at
+To ssh://git.launchpad.net/~your-user/ubuntu/+source/at
  * [new tag]         split/3.1.20-3.1ubuntu2 -> split/3.1.20-3.1ubuntu2
  * [new tag]         logical/3.1.20-3.1ubuntu2 -> logical/3.1.20-3.1ubuntu2
  * [new tag]         new/debian -> new/debian
@@ -137,13 +126,16 @@ To ssh://git.launchpad.net/~kstenerud/ubuntu/+source/at
 
 You need to have a {term}`PPA` for reviewers to test.
 
-
 (merge-create-a-ppa-repository)=
 ### Create a PPA repository
 
+
+(merge-create-a-ppa-repository-manually)=
+### Create a PPA repository manually
+
 `https://launchpad.net/~<your-username>/+activate-ppa`
 
-Give it a name that identifies the package name, Ubuntu version, and bug number, such as `at-merge-1802914`.
+Give it a name that identifies its contents, for example `lp<bugid>-<package_name>-<description>` such as `lp123456789-openldap-merge`.
 
 :::{important}
 Be sure to enable all architectures to check that it builds (click {guilabel}`Change details` in the top right corner of the newly created PPA page).
@@ -153,31 +145,22 @@ The URL of the PPA is formed as follows:
 
 `https://launchpad.net/~<your-username>/+archive/ubuntu/<PPA-name>`
 
-For example:
-
-`https://launchpad.net/~kstenerud/+archive/ubuntu/disco-at-merge-1802914`
-
 
 (merge-upload-files)=
 ### Upload files
 
+Install `dput-ng`, and use it to upload a source package:
+
 ```none
-$ dput ppa:kstenerud/disco-at-merge-1802914 ../at_3.1.23-1ubuntu1_source.changes
+$ dput ppa:your-username/lp123456789-openldap-merge ../openldap_32.13.1-1ubuntu1_source.changes
 ```
 
 
 (merge-wait-for-packages-to-be-ready)=
 ### Wait for packages to be ready
 
-1. Check the PPA page to see when packages are finished building:
-
-   [`https://launchpad.net/~kstenerud/+archive/ubuntu/disco-at-merge-1802914`](https://launchpad.net/~kstenerud/+archive/ubuntu/disco-at-merge-1802914)
-
-2. Look at the package contents to make sure they have actually been published (click {guilabel}`View package details` in the top right corner of the PPA page, or append `+packages` to its URL):
-
-   [`https://launchpad.net/~kstenerud/+archive/ubuntu/disco-at-merge-1802914/+packages`](https://launchpad.net/~kstenerud/+archive/ubuntu/disco-at-merge-1802914/+packages)
-
-
+1. Check the PPA page to see when packages are finished building
+1. Look at the package contents to make sure they have actually been published (click {guilabel}`View package details` in the top right corner of the PPA page, or append `+packages` to its URL)
 
 ## Next
 
