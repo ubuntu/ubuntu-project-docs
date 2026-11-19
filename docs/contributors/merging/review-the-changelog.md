@@ -4,6 +4,9 @@
 The merge generates the new `debian/changelog` entry from the commit messages of the delta.
 Review it, and adjust it where the generated text doesn't describe the delta well.
 
+A consistent format makes the delta easier to review and maintain: future maintainers can quickly see where each change applies and why a dropped change is no longer needed.
+For consistency, {command}`git-ubuntu` uses the same convention when generating changelogs ({command}`git ubuntu deltarebase changelog`).
+
 ::::{admonition} **Merging** series
 The article series provides guidance on performing package merges.
 
@@ -37,7 +40,25 @@ Show the new entry:
 $ git show HEAD -- debian/changelog
 ```
 
-It lists each commit of the delta under one of three headings:
+It lists each commit of the delta under one of three headings.
+A merge changelog entry uses this structure:
+
+```none
+  * Merge with <something>. Remaining changes:
+    - <where>: <what>
+  * Dropped changes:
+    - <where>: <what>
+      [<why>]
+  * New changes:
+    - <where>: <what>
+```
+
+`<where>` identifies the affected file or component, such as `d/rules` or `d/p/fix_recipe`.
+`<what>` briefly describes the change.
+For a dropped change, `<why>` explains why it is no longer needed, such as `[Fixed in 4.20-1]` or `[Upstream in 4.20]`.
+Recording the reason makes it clear why the change disappeared and helps future maintainers decide whether it should stay dropped.
+
+For example:
 
 ```none
   * Merge with Debian unstable (LP: #133734200). Remaining changes:

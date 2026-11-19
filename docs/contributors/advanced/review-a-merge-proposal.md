@@ -90,7 +90,8 @@ The following is an overview of common things to check.
 
 * Contains a bug pointer in the format `LP: #12345678` for all associated cases.
 
-* Correctly formatted entries according to the [changelog policy](https://www.debian.org/doc/debian-policy/ch-source.html#debian-changelog-debian-changelog) and {ref}`hints for merges <merge-review-the-changelog>`.
+* Correctly formatted entries according to the [changelog policy](https://www.debian.org/doc/debian-policy/ch-source.html#debian-changelog-debian-changelog) and {ref}`the merge changelog format <merge-review-the-changelog>`.
+  Each change uses `- <where>: <what>`; a dropped change adds an indented `[<why>]` line explaining why it is no longer needed.
 
 * Lists all changes made -- the changelog is a complete representation.
 
