@@ -14,3 +14,7 @@ Test plans for various SRUs were previously held on the Ubuntu wiki. If you need
 desktop-team/*
 Legacy test plans <desktop-team/legacy/index>
 ```
+
+### Test automation
+
+Additional desktop test plans exist as automated tests. Refer to the [`canonical/ubuntu-gui-testing`](https://github.com/canonical/ubuntu-gui-testing) repository.
