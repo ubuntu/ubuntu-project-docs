@@ -12,6 +12,10 @@
 
 This is a test plan for `chromium` as used by Ubuntu Desktop.
 
+:::{note}
+Automated tests are defined for Chromium [in the `ubuntu-gui-testing` repository](https://github.com/canonical/ubuntu-gui-testing/tree/main/tests/chromium-test) using the YARF framework.
+:::
+
 
 ### Initial set up
 
