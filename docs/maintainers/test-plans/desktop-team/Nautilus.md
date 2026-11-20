@@ -1,6 +1,9 @@
 (Nautilus-test-plan)=
 # Nautilus test plan
 
+:::{note}
+Automated tests are defined for Nautilus [in the `ubuntu-gui-testing` repository](https://github.com/canonical/ubuntu-gui-testing/tree/main/tests/nautilus) using the YARF framework.
+:::
 
 ## Start Files
 
