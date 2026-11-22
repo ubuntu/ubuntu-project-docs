@@ -1,12 +1,6 @@
 (apport-developer-how-to)=
 # Apport developer how-to
 
-```{admonition} Migrated content
-This page has been migrated from the Ubuntu Wiki "as is".
-It may contain inaccuracies, may not be up-to-date, and may require
-formatting, language, or other corrections.
-```
-
 
 (how-to-use-apport-in-your-programs)=
 ## How to use Apport in your programs
