@@ -39,7 +39,10 @@ Since Ubuntu 9.10 ("Karmic"), hooks can also ask interactive questions, to get f
 To create a hook, have your package install a file `/usr/share/apport/package-hooks/<binarypackagename>.py` or `/usr/share/apport/package-hooks/source_<sourcepackagename>.py`.  The hook will be used whenever apport logs a report for the specified package.  Here's a simple example of a hook:
 
 ```python
+import re
+
 from apport.hookutils import *
+
 
 def add_info(report, ui=None):
     attach_file_if_exists(report, '/var/log/foo.log', key='FooLog')
@@ -106,12 +109,12 @@ Possible values of `ProblemType`:
 To check the value of `ProblemType`:
 
 ```python
-  if report.get('ProblemType', '') == 'Crash':
-      # handle crash scenario
-  elif report.get('ProblemType', '') == 'Bug':
-      # handle bug scenario
-  else:
-      # handle remaining scenarios
+if report.get('ProblemType', '') == 'Crash':
+    ...  # handle the crash scenario
+elif report.get('ProblemType', '') == 'Bug':
+    ...  # handle the bug scenario
+else:
+    ...  # handle the remaining scenarios
 ```
 
 
@@ -248,18 +251,16 @@ If you're using Launchpad as a bug tracker, you can install Apport hooks in your
 ```python
 if not apport.packaging.is_distro_package(report['Package'].split()[0]):
     report['CrashDB'] = '<packagename>'
-
 ```
 
 1. Create a configuration file named `<packagename>`-crashdb.conf in /etc/apport/crashdb.conf.d/ with this content:
 
 ```python
 <packagename> = {
- 'impl' : 'launchpad',
- 'project' : '<packagename>',
- 'bug_pattern_base' : None,
- }
-
+    'impl': 'launchpad',
+    'project': '<packagename>',
+    'bug_pattern_url': None,
+}
 ```
 
 Obviously, you should replace `<packagename>` with the name of your package (without < and >).  **`<packagename>` cannot have any hyphen '-' characters in it.**  Replace them with underscores '_'.  It is also important that the `<packagename>` in the crashdb.conf file match the `<packagename>` in the Python file.
@@ -278,14 +279,13 @@ Apport is able to prompt the user by asking them questions.
 
 ```python
 def add_info(report, ui):
-
     attach_file = False
 
-    if ui and ui.yesno('Attach some file?') == True:
+    if ui and ui.yesno('Attach some file?'):
         attach_file = True
 
-    if attach_file == True:
-        # user wants file to be attached
+    if attach_file:
+        ...  # the user wants the file attached
 ```
 
 
@@ -298,23 +298,19 @@ list passed as the second argument to `ui.choice()`:
 
 ```python
 def add_info(report, ui):
-
-    attach_file = False
-
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ]
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
     response = ui.choice('What day is it?', days)
 
-    if response == None:
-        # user cancelled
-        pass
+    if response is None:
+        pass  # the user cancelled
     elif 0 in response:
-        # 'Monday' selected
+        ...  # 'Monday' selected
     elif 1 in response:
-        # 'Tuesday' selected
-    ...
+        ...  # 'Tuesday' selected
+    # [...]
     elif 6 in response:
-        # 'Sunday' selected
+        ...  # 'Sunday' selected
 ```
 
 
@@ -323,39 +319,34 @@ def add_info(report, ui):
 
 ```python
 from apport.hookutils import *
-import apport.packaging
 
-msg = \
-"""
-
+MSG = """
 The contents of file 'some-file' may help developers diagnose your bug
 more quickly. However, if you have changed it, it may contain
 sensitive information.
 
 Do you want to include the files in your bug report?
 (you will be able to review the data before it is sent)
-
 """
+
 
 def add_info(report, ui):
     attach_files = False
     problem_type = report.get('ProblemType', '')
 
     if problem_type == 'Bug' and ui:
-        # interactively ask the user a question and change behaviour based on their response.
-        if ui.yesno(msg) == None:
-            # user decided to cancel
+        # ask the user and change behavior based on their answer
+        answer = ui.yesno(MSG)
+        if answer is None:
+            # the user cancelled the report
             raise StopIteration
-
-        # user is allowing files to be attached.
-        attach_files = True
+        attach_files = answer
 
     elif problem_type == 'Crash':
         # crash bugs are private by default
         attach_files = True
 
-    if attach_files == False:
-        # do not attach any files
+    if not attach_files:
         return
 
     attach_file(report, '/etc/foo')
