@@ -655,6 +655,7 @@ If the specific release has reached End of Life (as per {ref}`list-of-releases` 
 
 Thank you for reporting this bug to Ubuntu.
 
+Ubuntu 25.10 (questing) reached end-of-life on July 9, 2026
 Ubuntu 25.04 (plucky) reached end-of-life on January 15, 2026
 Ubuntu 24.10 (oracular) reached end-of-life on July 10, 2025
 Ubuntu 23.04 (lunar) reached end-of-life on January 25, 2024
