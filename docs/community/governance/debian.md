@@ -15,4 +15,4 @@ Ubuntu develops and maintains a cross-platform, open-source operating system bas
 
 Canonical leads the Ubuntu ecosystem, partnering with public cloud and hardware providers to enable a high-quality platform that can be used free of charge, anywhere. Canonical also offers a range of services for enterprises, partners and individuals that help them manage Ubuntu.
 
-[Learn more about how Debian and Ubuntu fit together](https://wiki.ubuntu.com/Debian).
+{ref}`Learn more about how Debian and Ubuntu fit together <debian-guide>`.
