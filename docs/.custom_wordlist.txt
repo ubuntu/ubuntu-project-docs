@@ -25,6 +25,7 @@ backgrounding
 backoff
 backport
 backported
+backporter
 Backporters
 backporting
 Backports
@@ -168,6 +169,7 @@ Kubuntu
 Kylin
 launchpadlib
 leaderboard
+Lenovo
 Libadwaita
 Libcamera
 Libera
@@ -204,6 +206,8 @@ misclicks
 misconfigured
 Mjolnir
 mmunities
+Modalias
+modalias
 modaliases
 monorepo
 monospace
@@ -218,6 +222,7 @@ Mutter
 Mythbuntu
 Nautilus
 neurotype
+OCaml
 NGOs
 Noto
 onboarding
@@ -293,8 +298,11 @@ sid
 skippable
 SLOs
 smartcard
+SMBus
 Snapcraft
 snapcraft
+SONAME
+SONAMEs
 sosreport
 spammy
 sponsoree
@@ -307,6 +315,7 @@ Starcraft
 stdin
 subcommand
 subcommands
+subdevice
 subiquity
 subkey
 subkeys
@@ -314,6 +323,7 @@ subprocess
 subprojects
 subreddit
 Subteam
+subvendor
 supercomputing
 SVGs
 syncable

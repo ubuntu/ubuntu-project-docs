@@ -30,12 +30,12 @@ root@postfix-sru-lp1753470-segfault-bionic:~#
 Record your steps as you go (you'll need them later):
 
 ```none
-# apt dist-upgrade
-# apt install -y postfix
-# touch /etc/postfix/valiases.cf
-# chmod 0600 /etc/postfix/valiases.cf
-# echo "virtual_alias_maps = pgsql:/etc/postfix/valiases.cf" >> /etc/postfix/main.cf
-# su - ubuntu
+root@postfix…# apt dist-upgrade
+root@postfix…# apt install -y postfix
+root@postfix…# touch /etc/postfix/valiases.cf
+root@postfix…# chmod 0600 /etc/postfix/valiases.cf
+root@postfix…# echo "virtual_alias_maps = pgsql:/etc/postfix/valiases.cf" >> /etc/postfix/main.cf
+root@postfix…# su - ubuntu
 $ /usr/sbin/postconf virtual_alias_map
 Segmentation fault (core dumped)
 ```

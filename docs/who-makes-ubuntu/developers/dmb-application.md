@@ -12,6 +12,7 @@
 
 dmb-application-knowledge-requirements
 dmb-aspects-of-a-good-application
+ubuntu-contributor-tutor
 ```
 
 To become an {ref}`Ubuntu Developer Member <ubuntu-developers>`, or a developer of a delegated team for which the {ref}`dmb` handles applications, you must apply via the process outlined on this page.
@@ -20,6 +21,8 @@ The DMB covers applications for {ref}`dmb-joining-contributing`, {ref}`Per-Packa
 It can be difficult to know when you are ready to apply for uploader team membership.
 For some advice and guidance, check out the {ref}`dmb-aspects-of-a-good-application` page.
 To understand how the Ubuntu development skills map to the various uploader levels, you may also find it helpful to refer to {ref}`dmb-application-knowledge-requirements`.
+For interactive, AI-guided self-study, you can use the {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>`.
+It can help you learn, track contributions, and prepare application materials, but it does not assess readiness on the DMB's behalf.
 
 
 ## Application process overview

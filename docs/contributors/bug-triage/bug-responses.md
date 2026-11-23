@@ -562,7 +562,7 @@ Determining whether a bug report is actually a support request can be quite chal
 Thank you for taking the time to report this issue and helping to make Ubuntu better. Examining the information you have given us, this does not appear to be a bug report so we are closing it and converting it to a question in the support tracker. We understand the difficulties you are facing, but it is better to raise problems you are having in the support tracker at https://answers.launchpad.net/ubuntu if you are uncertain if they are bugs. If you would prefer live chat support, you can find an IRC support channel for your flavor of Ubuntu here: https://wiki.ubuntu.com/IRC/ChannelList. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/t/welcome-to-support-and-help/49951. For help on reporting bugs, see https://help.ubuntu.com/community/ReportingBugs.
 ```
 
-Chris Guiver provides an alternate wording (thanks, Chris!):
+Or an alternate wording:
 
 ```{code} none
 :class: codeblock-wrap
@@ -571,7 +571,7 @@ Thank you for taking the time to report this bug and helping to make Ubuntu bett
 
 Bug reporting is about finding & fixing problems thus preventing future users from hitting the same bug.
 
-I suspect a Support site would be more appropriate, e.g. https://answers.launchpad.net/ubuntu. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/t/welcome-to-support-and-help/49951), or for more support options please look at https://discourse.ubuntu.com/t/community-support/709.
+I suspect a Support site would be more appropriate, e.g. https://answers.launchpad.net/ubuntu. You can also find help with your problem in the support forum of your local Ubuntu community http://loco.ubuntu.com/ or asking at https://askubuntu.com or https://discourse.ubuntu.com/c/support-and-help/306
 ```
 
 It is also a good idea to change the source package beforehand if it's set incorrectly, so that the question will be associated with the correct package in the answer tracker, or edit the question afterwards and assign it to the correct package. If it doesn't pertain to a specific package, change it to "Ubuntu".

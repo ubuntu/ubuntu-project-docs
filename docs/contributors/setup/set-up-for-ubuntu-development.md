@@ -41,23 +41,20 @@ Your user should be a member of the following groups:
 * `sbuild`
 * `sudo`
 
-Ensure you have installed the packages listed above, which will be the trigger
-to create most of these groups. For group membership to be activated one
-usually needs to re-login. Then, one can double check group membership via:
+Ensure you have installed the packages listed in {ref}`ubuntu-development-dependencies`, which creates most of these groups.
+
+For group membership to be activated, re-login. Then, double-check your group membership:
 
 ```none
-$ groups my_user
+$ groups $USER
 my_user : my_user adm cdrom sudo dip plugdev lpadmin sambashare \
  libvirt sbuild lxd
 ```
 
-If any of the following groups is missing for your user you can fix it via
-`adduser`, like this:
+If any of the required groups is missing for your user, fix it:
 
 ```none
-$ sudo adduser my_user lxd
-$ sudo adduser my_user sbuild
-$ sudo adduser my_user libvirt
+$ sudo usermod --append --groups adm,libvirt,lxd,sbuild,sudo $USER
 ```
 
 

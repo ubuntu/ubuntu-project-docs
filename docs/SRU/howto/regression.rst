@@ -17,7 +17,7 @@ If the regression *only* applies to the package in -proposed, please
 follow up to the bug with a detailed explanation, and tag the bug with
 regression-proposed. To ensure that the package doesn't accidentally get
 released, add a comment to an existing bug and change the appropriate
-tag to verification-<series>-failed.
+tag to verification-failed-<series>.
 
 .. _howto-handle-regression-report:
 

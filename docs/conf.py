@@ -366,7 +366,11 @@ hoverxref_roles = [
 # Following regex stupidly using '|' because of a bug in copybutton ext.:
 #         https://github.com/executablebooks/sphinx-copybutton/issues/96
 # Replace with   r"(\S+@\S+)?[\$\#] "  when the bug is fixed.
-copybutton_prompt_text = r"\S+@\S+[\$\#] |[\$\#] "
+# A bare "# " prompt is deliberately not matched: it is indistinguishable from
+# a comment in Perl, Python, shell scripts, etc., so only the "$ " prompt and
+# user@host prompts (including root@host:~#) are recognized.
+# For root commands, use $ sudo command.
+copybutton_prompt_text = r"\S+@\S+[\$\#] |\$ "
 copybutton_prompt_is_regexp = True
 copybutton_line_continuation_character = "\\"
 

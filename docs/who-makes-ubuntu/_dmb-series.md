@@ -8,6 +8,7 @@ Developer roles:
   - Variations of {ref}`PPU <dmb-joining-ppu>`, {ref}`PkgSet <dmb-joining-packageset>`, {ref}`MOTU <dmb-joining-motu>`, {ref}`SRU <dmb-joining-sru-dev>` and {ref}`Ubuntu Core <dmb-joining-core-dev>` upload rights
   - Details about {ref}`Prospective <dmb-joining-prospective>`, {ref}`Contributing <dmb-joining-contributing>`, {ref}`Delegated <dmb-joining-delegated>` developers
 - {ref}`Application process <dmb-application>` - With {ref}`knowledge requirements <dmb-application-knowledge-requirements>` and {ref}`tips for a good application <dmb-aspects-of-a-good-application>`
+- {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>` - AI-guided Ubuntu learning and application preparation
 
 DMB operations:
 - {ref}`dmb-meetings` - Meeting schedule and procedures

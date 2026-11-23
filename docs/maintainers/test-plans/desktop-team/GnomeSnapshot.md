@@ -1,6 +1,10 @@
 (GnomeSnapshot-test-plan)=
 # GNOME Snapshot test plan
 
+:::{note}
+`gnome-snapshot` has been part of `main` since Ubuntu 24.04 LTS (noble).
+:::
+
 Since the autopkgtest infrastructure isn't really suitable for camera testing we will require manual testing for updates to `gnome-snapshot`
 
 
