@@ -149,3 +149,17 @@ the normal {ref}`Developer Membership Board application process <dmb-application
 
 In your DMB application page, link to this page and state that you have followed this
 guidance, and that you are aware of and fulfil the expectations outlined above.
+The applicant is the best to select and list the set of cases they want to
+present to prove the above requirements, therefore an application for DKMS
+uploaders should (in addition to the normal template content) contain a section
+that includes:
+* Kernel upload rights: I'm in https://launchpad.net/~ubuntu-kernel-uploaders since TODO-set-your-date
+* >=10 good-quality SRU uploads for DKMS packages
+  * links to upload
+  * ... until there are 10 or more
+* >=10 good-quality uploads of DKMS packages to the development series
+  * links to upload
+  * ... until there are 10 or more
+* >=5 package syncs or merges of DKMS packages from Debian
+  * links to upload
+  * ... until there are 5 or more
