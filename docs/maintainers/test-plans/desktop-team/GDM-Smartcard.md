@@ -9,15 +9,16 @@ Smart card login with the various GDM profiles can be simulated using software s
 While they should not be destructive by default (as they are designed to restore everything they change at system level), it's recommended to test the scripts in a VM with SSH access so that it's easier to verify the outcome.
 
 ```none
-sudo apt install softhsm2 pamtester openssl
+sudo apt install softhsm2 pamtester openssl gnutls-bin git
 sudo apt-mark auto softhsm2 pamtester
-git clone https://salsa.debian.org/gnome-team/gdm gdm
+# The script must be readable by the sssd user
+git clone https://salsa.debian.org/gnome-team/gdm /tmp/gdm
 ```
 
 Now in a SSH terminal (or a `tty`) run:
 
 ```none
-sudo env PIN=554433 WAIT=1 bash ./gdm/debian/tests/sssd-gdm-smartcard-pam-auth-tester.sh
+sudo env PIN=554433 WAIT=1 bash /tmp/gdm/debian/tests/sssd-gdm-smartcard-pam-auth-tester.sh
 ```
 
 Once `gdm` will be started, it will try the smart card authentication at first, so type the user name you want to log in with (but only the user that launched the previous command with `sudo` will be the one allowed).
