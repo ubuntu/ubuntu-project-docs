@@ -32,7 +32,7 @@ From time to time, `minor releases <https://github.com/opensvc/multipath-tools/t
 Ubuntu [and multipath-tools] releases affected by this MRE
 ----------------------------------------------------------
 
-All supported **Ubuntu LTS releases** shiping ``multipath-tools >= 0.10`` are affected by this policy.
+All supported **Ubuntu LTS releases** shipping ``multipath-tools >= 0.10`` are affected by this policy.
 
 ``multipath-tools >= 0.10.0`` with version ``a.b.x`` get stable upstream updates on ``x`` from branch ``stable-a.b.x``.
 

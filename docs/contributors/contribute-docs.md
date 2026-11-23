@@ -451,7 +451,7 @@ In case it is useful to show a command using a specific command-line prompt toge
 Example source for MyST:
 
 ````none
-Run the {command}`command` as the root user to achieve the folowing result:
+Run the {command}`command` as the root user to achieve the following result:
 
 ```{terminal}
 :user: root
