@@ -21,10 +21,10 @@ Now in a SSH terminal (or a `tty`) run:
 sudo env PIN=554433 WAIT=1 bash /tmp/gdm/debian/tests/sssd-gdm-smartcard-pam-auth-tester.sh
 ```
 
-Once `gdm` will be started, it will try the smart card authentication at first, so type the user name you want to log in with (but only the user that launched the previous command with `sudo` will be the one allowed).
+Once `gdm` is restarted, it will try the smart card authentication first. Type the user name you want to log in with (the user that launched the previous command with `sudo` will be the one allowed).
 
-So ensure that the `$SUDO_USER` is the only one allowed to login (and only with the specified PIN number) and that no one else is.
+The script ensures that the `$SUDO_USER` is the only one allowed to login (and only with the specified PIN number) and that no one else is.
 
 Hitting {kbd}`Enter`, the tool iterates through various GDM smart card configurations (`gdm-smartcard-sssd-exclusive` and `gdm-smartcard-sssd-or-password`), using different kinds of certificates, but in all the cases the `$SUDO_USER` should be allowed to login with Smart card only or also with password as fallback (in the `gdm-smartcard-sssd-or-password` case).
 
-For what concerns the GDM UI testing, once the first 2 steps have been tested, the test is considered to pass.
+For GDM UI verification, manually test the first 2 iterations. If both logins are successful, the test passes.
