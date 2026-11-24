@@ -11,6 +11,7 @@ apports
 Apt
 archs
 armhf
+Astro
 Atril
 auditable
 autobuilders
