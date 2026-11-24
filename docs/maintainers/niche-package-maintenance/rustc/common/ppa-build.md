@@ -15,7 +15,7 @@ $ ppa create rustc-<X.Y>-merge
 Rust backport:
 
 ```none
-$ ppa create rustc-<X.Y>-release
+$ ppa create rustc-<X.Y>-<release>
 ```
 
 Rust patch:

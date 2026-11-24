@@ -198,6 +198,17 @@ staging/AA/maintainers/aa-signing-bootloaders/ maintainers/AA/aa-signing-bootloa
 
 maintainers/index-uploader/ maintainers/uploader/
 
+maintainers/test-plans/desktop-team/Epiphany/ maintainers/test-plans/desktop-team/browsers/
+maintainers/test-plans/desktop-team/Evince/ maintainers/test-plans/desktop-team/legacy/Evince/
+maintainers/test-plans/desktop-team/Evolution/ maintainers/test-plans/desktop-team/
+maintainers/test-plans/desktop-team/EvolutionEWS/ maintainers/test-plans/desktop-team/
+maintainers/test-plans/desktop-team/GnomeBuilder/ maintainers/test-plans/desktop-team/
+maintainers/test-plans/desktop-team/PipewireMediaSession/ maintainers/test-plans/desktop-team/legacy/PipewireMediaSession/
+maintainers/test-plans/desktop-team/UbuntuAdvantageDesktopDaemon/ maintainers/test-plans/desktop-team/UbuntuProDesktop/
+
+
+maintainers/uploader/update-seeds/ contributors/advanced/seed-management/
+
 # =============================================================================
 # Who makes Ubuntu
 # =============================================================================
@@ -280,9 +291,14 @@ MIR/mir-service-level-objectives/ MIR/mir-roles-and-steps/
 staging/feature-freeze/ release-team/freezes/
 how-ubuntu-is-made/processes/freezes/ release-team/freezes/
 
-staging/seed-management/ staging/release-team/seed-management/
+staging/seed-management/ contributors/advanced/seed-management/
+staging/release-team/seed-management/ contributors/advanced/seed-management/
 
-staging/germinate/ staging/release-team/germinate/
+staging/seeds/ how-ubuntu-is-made/concepts/seeds/
+staging/release-team/seeds/ how-ubuntu-is-made/concepts/seeds/
+
+staging/germinate/ how-ubuntu-is-made/concepts/seeds/
+staging/release-team/germinate/ how-ubuntu-is-made/concepts/seeds/
 
 staging/release-team/freeze-exceptions/ release-team/freeze-exceptions/
 staging/freeze-exceptions/ release-team/freeze-exceptions/

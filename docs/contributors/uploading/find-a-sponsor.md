@@ -18,6 +18,7 @@ For contributors:
 :   * {ref}`how-to-find-a-sponsor` (this article)
     * {ref}`how-to-request-an-upload`
     * {ref}`how-to-request-a-sync`
+    * {ref}`how-to-backport-a-package`
 
 For sponsors:
 :   * {ref}`how-to-review-a-merge-proposal`
@@ -33,6 +34,7 @@ To request sponsorship, file a bug or submit a merge proposal in Launchpad, subs
   * {ref}`how-to-sponsor-an-upload`
   * {ref}`how-to-sponsor-a-sync`
 
+Your bug/merge proposal should appear in the [sponsorship queue](http://sponsoring-reports.ubuntu.com) in a few hours if everything was done correctly.
 
 ## Informal channels
 

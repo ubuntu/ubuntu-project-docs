@@ -535,7 +535,8 @@ postgresql
 ~~~~~~~~~~
 
 The currently supported postgresql source package (as determined by the
-dependency of the postgresql metapackage) for each stable release may be
+dependency of the `postgresql` :term:`metapackage <Metapackage>`) for each
+stable release may be
 uploaded according to the procedure documented in
 :ref:`PostgreSQLUpdates <reference-exception-PostgreSQLUpdates>`. This stable release exception
 `has been
@@ -546,7 +547,7 @@ MariaDB and Galera
 ~~~~~~~~~~~~~~~~~~
 
 The 'mariadb' and 'galera' source packages, including source package variants
-with version suffixes, may be uploaded according to the proceedure documented in
+with version suffixes, may be uploaded according to the procedure documented in
 :ref:`MariaDB-Galera-Updates <reference-exception-MariaDB-Galera-Updates>`.
 
 multipath-tools

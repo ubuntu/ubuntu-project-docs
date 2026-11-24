@@ -1,6 +1,10 @@
 (libva-test-plan)=
 # Libva test plan
 
+:::{note}
+`libva2` has been part of `main` since Ubuntu 25.04 (plucky). It was in `universe` in earlier releases.
+:::
+
 Below are the test cases that should be run when **`libva`** is updated to new major releases in the development version of Ubuntu. These should also be run for all `libva` Stable Release Updates.
 
 1. Ensure you have an Intel CPU at least 5th generation and launched no more recently than 12 months ago. This is important to avoid deprecated or missing drivers. We are not testing for driver issues here so we want a hardware generation most likely to be supported.

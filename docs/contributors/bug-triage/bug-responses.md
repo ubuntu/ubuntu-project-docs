@@ -72,7 +72,7 @@ The following packages or type of bugs require specific debugging information.
 
 ### Debugging kernel (general)
 
-Pleas also see the Ubuntu Kernel Team's [specific responses](https://wiki.ubuntu.com/Kernel/BugTriage/Responses) for Linux (Ubuntu) kernel bugs.
+Please also see the Ubuntu Kernel Team's [specific responses](https://wiki.ubuntu.com/Kernel/BugTriage/Responses) for Linux (Ubuntu) kernel bugs.
 
 
 ### Debugging sound problems
@@ -655,9 +655,9 @@ If the specific release has reached End of Life (as per {ref}`list-of-releases` 
 
 Thank you for reporting this bug to Ubuntu.
 
+Ubuntu 25.10 (questing) reached end-of-life on July 9, 2026
 Ubuntu 25.04 (plucky) reached end-of-life on January 15, 2026
 Ubuntu 24.10 (oracular) reached end-of-life on July 10, 2025
-Ubuntu 23.04 (lunar) reached end-of-life on January 25, 2024
 Ubuntu 23.10 (mantic) reached end-of-life on July 11, 2024
 Ubuntu 23.04 (lunar) reached end-of-life on January 25, 2024
 Ubuntu 22.10 (kinetic) reached end-of-life on July 20, 2023

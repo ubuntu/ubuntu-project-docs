@@ -88,6 +88,10 @@ expect inconsistencies -- and feel welcome to correct any links you find that
 are incorrect.
 ```
 
+Where possible, work with a mentor who can guide your learning and review your progress.
+If you do not have a mentor, the {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>` can provide independent, self-paced lessons, practice, and feedback.
+It complements, rather than replaces, the judgment, review, and sponsorship of mentors and other Ubuntu developers.
+
 These interactive charts show the skills needed to obtain permissions for
 uploading changes to the Ubuntu Package Archive. They can be used as a guide
 to help build your applications for upload rights on:

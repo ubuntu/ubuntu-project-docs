@@ -12,6 +12,7 @@
 
 dmb-application-knowledge-requirements
 dmb-aspects-of-a-good-application
+ubuntu-contributor-tutor
 ```
 
 To become an {ref}`Ubuntu Developer Member <ubuntu-developers>`, or a developer of a delegated team for which the {ref}`dmb` handles applications, you must apply via the process outlined on this page.
@@ -20,6 +21,8 @@ The DMB covers applications for {ref}`dmb-joining-contributing`, {ref}`Per-Packa
 It can be difficult to know when you are ready to apply for uploader team membership.
 For some advice and guidance, check out the {ref}`dmb-aspects-of-a-good-application` page.
 To understand how the Ubuntu development skills map to the various uploader levels, you may also find it helpful to refer to {ref}`dmb-application-knowledge-requirements`.
+For interactive, AI-guided self-study, you can use the {ref}`Ubuntu contributor tutor <ubuntu-contributor-tutor>`.
+It can help you learn, track contributions, and prepare application materials, but it does not assess readiness on the DMB's behalf.
 
 
 ## Application process overview
@@ -117,7 +120,7 @@ Subsequent changes are requested by mailing `devel-permissions@lists.ubuntu.com`
 If the "impact" of the packages changes -- for example, one of the packages is part of release media for the first time -- the DMB may wish to ask some further clarifying questions to satisfy itself that the Debian Developer is sufficiently familiar with the differences between Ubuntu and Debian to upload the package(s) in question without supervision.
 
 ```{note}
-In Debian, there are some teams who maintain hundreds or even thousands of packages (e.g., the Python team owns over 3000 packges).
+In Debian, there are some teams who maintain hundreds or even thousands of packages (e.g., the Python team owns over 3000 packages).
 If you as a Debian Developer decide you want upload rights for such a large a set of packages, for which a package set does not exist in Ubuntu, please consider applying for MOTU or Core Developer instead of using the policy described here.
 You may also want to go through another application if the usage of this policy would drastically increase the number of packages you have upload rights to. For instance, if you have Per-Package Upload rights to a single Go package, it may not be reasonable to use this policy to request access to all Debian Golang team packages given you are part of the Debian Golang team. When in doubt, please reach out to the DMB.
 ```
