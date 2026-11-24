@@ -138,7 +138,7 @@ mentors and sponsors; uploads made during that phase that required substantial r
 not count toward these minimums.
 
 :::{warning}
-The candidate ** MUST enumerate** the requirements listed above in their
+The candidate **MUST enumerate** the requirements listed above in their
 application.
 :::
 
