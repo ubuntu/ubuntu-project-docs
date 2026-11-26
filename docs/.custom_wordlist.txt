@@ -130,6 +130,7 @@ github
 Gobuntu
 GPLs
 GPUs
+Gradle
 Greasemonkey
 groff
 GStreamer

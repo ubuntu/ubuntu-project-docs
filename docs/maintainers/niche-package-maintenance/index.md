@@ -9,6 +9,7 @@ Details on maintaining some of these packages are given here.
 :titlesonly:
 
 desktop/index
+java/index
 llvm/index
 rustc/index
 openjdk/index
