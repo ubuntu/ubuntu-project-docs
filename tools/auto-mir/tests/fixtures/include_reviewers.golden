@@ -355,8 +355,8 @@ TODO: - promoting this does not seem to cause issues for MOTUs that so far
 TODO:   maintained the package
 TODO: - no massive Lintian warnings
 TODO: - debian/rules is rather clean
-TODO: - It is not on the lto-disabled list
 TODO: - debian/control defines a correct Maintainer field
+TODO: - It is not on the lto-disabled list
 RULE:   (fix, or the workaround should be directly in the package,
 RULE:    see https://launchpad.net/ubuntu/+source/lto-disabled-list)
 
