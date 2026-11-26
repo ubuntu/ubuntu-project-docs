@@ -427,14 +427,15 @@ metadata:
   - "RULE:   not a recommended but a common case with golang and rust packages."
   - "RULE:   - the security team will track CVEs for all vendored/embedded sources in main"
   - "RULE:   - the security team will provide updates to main for all `golang-*-dev`"
-  - "RULE:     packages"
+  - "RULE:     and packaged `rust-<crate>` library packages"
   - "RULE:   - the security team will provide updates to main for non-vendored"
   - "RULE:     dependencies as per normal procedures (including e.g.,"
   - "RULE:     sponsoring/coordinating uploads from teams/upstream projects, etc)"
   - "RULE:   - the security team will perform no-change-rebuilds for all packages"
   - "RULE:     listing an CVE-fixed package as Built-Using and coordinate testing"
   - "RULE:     with the owning teams responsible for the rebuilt packages"
-  - "RULE:   - for packages that build using any `golang-*-dev` packages:"
+  - "RULE:   - for packages that build using any `golang-*-dev` or packaged"
+  - "RULE:     `rust-<crate>` library packages:"
   - "RULE:     - the owning team must state their commitment to test"
   - "RULE:       no-change-rebuilds triggered by a dependent library/compiler and to"
   - "RULE:       fix any issues found for the lifetime of the release (including ESM"
@@ -465,21 +466,22 @@ metadata:
   - "RULE:       c) The need to backport the fix in the dependency, as it would imply"
   - "RULE:          requiring a newer toolchain to be buildable that isn't available"
   - "RULE:          in the target release."
-  - "RULE[maint-rust-vendoring]: - The rust ecosystem currently isn't yet considered stable enough for"
-  - "RULE:   classic lib dependencies and transitions in main; therefore the"
-  - "RULE:   expectation for those packages is to vendor (and own/test) all"
-  - "RULE:   dependencies (except those provided by the rust runtime itself)."
-  - "RULE:   This implies that all the rules for vendored builds always"
-  - "RULE:   apply to them. In addition:"
+  - "RULE[maint-rust-vendoring]: - Rust packages in main prefer to build against packaged"
+  - "RULE:   rust crates from the Ubuntu archive. The Ubuntu Rust toolchain team"
+  - "RULE:   owns and maintains a growing set of common library packages (acting"
+  - "RULE:   as a rust standard library for easy reuse), so the first package"
+  - "RULE:   of a kind does not need to own and MIR the entire dependency tree."
+  - "RULE: - Vendoring is not required. Avoid it if you can, but it is acceptable"
+  - "RULE:   and understood when the number of unpackaged dependencies cannot be"
+  - "RULE:   packaged in the time available. If vendored, all the rules for"
+  - "RULE:   vendored builds apply (see the obligations above). In addition:"
   - "RULE:   - The rules and checks for rust based packages are preliminary and might"
   - "RULE:     change over time as the ecosystem matures and while"
   - "RULE:     processing the first few rust based packages."
   - "RULE:   - It is expected rust builds will use dh-cargo so that a later switch"
-  - "RULE:     to non vendored dependencies isn't too complex (e.g. it is likely"
-  - "RULE:     that over time more common libs shall become stable and then archive"
-  - "RULE:     packages will be used to build)."
-  - "RULE:   - The tooling to get a Cargo.lock that will include internal vendored"
-  - "RULE:     dependencies is described at:"
+  - "RULE:     between vendored and packaged dependencies isn't too complex."
+  - "RULE:   - The full dependency set (packaged or vendored) shall be tracked in a"
+  - "RULE:     Cargo.lock file. The tooling is described at:"
   - "RULE:     https://github.com/ubuntu/ubuntu-project-docs/blob/main/docs/MIR/mir-rust.md"
   - "RULE:   - An example of how Rust dependency vendoring can be automated is"
   - "RULE:     \"s390-tools\", isolating crates in a .orig-vendor.tar.xz tarball:"
@@ -1402,7 +1404,7 @@ items:
   template: 'TODO: - Built-Using/Static-Built-Using declared by the built binaries: TBD'
 - id: REP-MAINT-007
   section: Maintenance/Owner
-  title: Rust vendored dependency tracking
+  title: Rust dependency sourcing and tracking
   mode: deterministic
   evaluator: rust-vendoring
   readiness: blocker
@@ -1411,7 +1413,7 @@ items:
     truthy: true
   adapters_required: [packaging-source]
   covers_rule_clauses: [maint-rust-vendoring]
-  template: "TODO-A: - This package is not rust based\nTODO-B: - This package is rust based and vendors all non language-runtime\nTODO-B:   dependencies"
+  template: "TODO-A: - This package is not rust based\nTODO-B: - This package is rust based and builds against packaged rust\nTODO-B:   crates (including the rust team common libraries)\nTODO-C: - This package is rust based and vendors its non-runtime dependencies,\nTODO-C:   the reasoning why packaging them was not feasible is outlined in this bug"
 - id: REP-MAINT-005
   section: Maintenance/Owner
   title: Recent build evidence

@@ -1220,11 +1220,13 @@ def _vendored_maintenance_docs(_item: dict, ctx: RunContext) -> Assessment:
 
 @reporter_evaluator("rust-vendoring")
 def _rust_vendoring(_item: dict, ctx: RunContext) -> Assessment:
-    """Judge whether a Rust package's vendored dependencies are reproducibly tracked.
+    """Judge whether a Rust package's dependency set is reproducibly tracked.
 
-    Rust packages vendor their non-runtime (build-time) dependencies via the
-    supported cargo packaging path; a committed Cargo.lock is what makes those
-    versions reproducibly trackable and refreshable. Gated on
+    Rust packages source their non-runtime dependencies either from packaged
+    rust crates or from a vendored tree; a committed Cargo.lock is what makes
+    that set reproducibly trackable and refreshable in both cases. The
+    statement names the shipped vendored directories (if any) so the reporter
+    knows which template option fits. Gated on
     ``packaging-source.is_rust_package`` so this never fires for non-Rust
     packages.
     """
@@ -1234,20 +1236,35 @@ def _rust_vendoring(_item: dict, ctx: RunContext) -> Assessment:
     if not data.get("cargo_lock_present"):
         return Assessment(
             statement=(
-                "This Rust package has no committed Cargo.lock, so vendored "
-                "dependency versions are not reproducibly tracked."
+                "This Rust package has no committed Cargo.lock, so its "
+                "dependency set (packaged or vendored) is not reproducibly tracked."
             ),
             evidence_refs=["packaging-source:cargo_lock_present"],
             action=(
-                "A Cargo.lock file is expected for reproducible dependency tracking "
-                "and refresh documentation."
+                "A Cargo.lock file is expected for reproducible dependency "
+                "tracking and refresh documentation, no matter whether the "
+                "dependencies are packaged or vendored."
             ),
         )
+    vendored_dirs = data.get("shipped_vendored_dirs", [])
+    if vendored_dirs:
+        statement = (
+            "This Rust package tracks its dependency set (packaged or vendored) "
+            "via a committed Cargo.lock file and ships a vendored tree "
+            f"({', '.join(vendored_dirs)}), so the vendored-build obligations apply."
+        )
+    else:
+        statement = (
+            "This Rust package tracks its dependency set (packaged or vendored) "
+            "via a committed Cargo.lock file; no shipped vendored directories "
+            "were detected, so the packaged-crate path applies."
+        )
     return Assessment(
-        statement=(
-            "This Rust package tracks its vendored dependencies via a committed Cargo.lock file."
-        ),
-        evidence_refs=["packaging-source:cargo_lock_present"],
+        statement=statement,
+        evidence_refs=[
+            "packaging-source:cargo_lock_present",
+            "packaging-source:shipped_vendored_dirs",
+        ],
     )
 
 

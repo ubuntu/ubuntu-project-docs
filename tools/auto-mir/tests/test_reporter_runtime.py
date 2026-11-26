@@ -1272,9 +1272,37 @@ def test_rust_vendoring_ok_when_cargo_lock_present():
     assessment = _rust_vendoring({}, ctx)
     statement, refs = assessment.statement, assessment.evidence_refs
     rationale = assessment.rationale()
-    assert "tracks its vendored dependencies via a committed Cargo.lock" in statement
+    assert (
+        "tracks its dependency set (packaged or vendored) via a committed Cargo.lock" in statement
+    )
+    assert "no shipped vendored directories were detected" in statement
     assert rationale == ""
     assert refs
+
+
+def test_rust_vendoring_names_vendored_tree_when_present():
+    from reporter.evaluator import _rust_vendoring
+
+    ctx = SimpleNamespace(
+        evidence={
+            "adapters": {
+                "packaging-source": {
+                    "status": "ok",
+                    "cargo_lock_present": True,
+                    "shipped_vendored_dirs": ["debian/rust-vendor"],
+                },
+            }
+        }
+    )
+    assessment = _rust_vendoring({}, ctx)
+    statement = assessment.statement
+    rationale = assessment.rationale()
+    assert (
+        "tracks its dependency set (packaged or vendored) via a committed Cargo.lock" in statement
+    )
+    assert "debian/rust-vendor" in statement
+    assert "vendored-build obligations apply" in statement
+    assert rationale == ""
 
 
 def test_rust_vendoring_flags_missing_cargo_lock():
