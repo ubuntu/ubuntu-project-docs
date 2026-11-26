@@ -1445,6 +1445,7 @@ Ubuntu Code of Conduct
 
     See also: 
     * {ref}`Ubuntu Code of Conduct <code-of-conduct>`
+    * {ref}`Sign the Ubuntu Code of Conduct <sign-ubuntu-code-of-conduct>`
 
 UCT
 Ubuntu CVE Tracker
