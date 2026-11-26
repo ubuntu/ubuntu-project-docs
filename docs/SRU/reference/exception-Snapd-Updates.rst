@@ -1,123 +1,288 @@
 .. _reference-exception-snapdupdates:
 
-Snapd Updates
+snapd Updates
 =============
 
 .. include:: /SRU/_sru-series-exception.rst
 
-This document describes the policy for updating the snapd package in a
-stable supported distro, including LTS.
+Introduction
+------------
 
-snapd is the tool to interact with Ubuntu Core Snappy. This package is
-also used in the generation of the OS snap package and snappy Ubuntu
-Core images. One of the goals of this project is to keep your system
-always up-to-date with the latest security fixes and with the newest
-developed features. It was designed in a way that makes it easily
-extensible, so every new release provides bug fixes and new features
-with a low risk of regressions. The team is working with a continuous
-delivery process which results in a new version ready to be released
-every week. The snapd package that was delivered at the time of the
-Ubuntu 16.04 release is also not feature-complete, and the nature of
-this project makes it important to be able to continue to deliver new
-features on top of a stable Ubuntu release. Therefore, in addition to
-critical bug fixes, new features and small improvements are allowed in
-an update **as long as the conditions outlined below are met**.
+This document explains how snapd updates deviate from the standard SRU policy,
+outlining the background, exceptions, and the responsibilities of the snapd,
+sponsor, and SRU teams in managing quality and risk.
 
+Background
+----------
 
-Snapd QA Process
-----------------
+`snapd <https://github.com/canonical/snapd>`_ is a background service that
+manages and maintains installed snaps. It is used on classic Ubuntu (and other
+distributions) as well as on Ubuntu Core. From the perspective of the snapd
+team, a release usually involves both a deb and snap package to serve the needs
+of desktop, server, cloud and IOT use cases.
 
-This is the mandatory QA process that the proposed packages have to
-pass. The following requirements must be met:
+An important goal of the snapd project is to always keep systems up-to-date with
+the latest security fixes, bug fixes and the latest features, while also
+enabling developers to access system resources that are initially restricted by
+interfaces but may be opened in a controlled manner to support new solutions.
 
-*  each change must be reviewed and approved by at least two members
-   of the `ubuntu-core github
-   team <https://github.com/orgs/ubuntu-core/people>`__ before
-   landing into the master branch.
+The snapd value proposition is to allow installing robust software that can move
+at a different pace than distributions, in a rolling release model. In order to
+fulfill this, it needs to provide a security-maintained, consistent and
+up-to-date runtime environment for them across distributions and distribution
+versions. The design, development, and release processes limit the risk of
+keeping that runtime up to date. They are described in the Quality Assurance
+section of `snapd updates in Ubuntu
+<https://documentation.ubuntu.com/canonical-snapd-lore/processes/snapd-updates-in-ubuntu/>`_.
 
-*  each change must be fully tested at the unit level.
+snapd behaviour on Classic Ubuntu
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   * all the unit tests must pass in all the supported architectures.
-     They are executed for one arch before the change is merged into
-     master, and for all the architectures during the build of the deb
-     package that will go into proposed.
+- snapd is used during both installation and normal system operation.
+- Installer LiveCD images are seeded with both snapd deb and snap packages and
+  installs are seeded with the snapd deb package.
+- Ubuntu supports and enables :ref:`re-execution <ref_reexecution>` during both
+  installation and normal system operation.
+- Due to re-execution, reverting the deb package alone does not necessarily
+  revert the running snapd version if a newer or equal snap revision is still
+  installed. For this reason, the snapd team chooses the mitigation
+  :ref:`here <ref_revert>`, rather than through the standard SRU process for
+  deb packages.
+- Updates are released as deb and snap packages; the order of release may vary.
+- The snapd deb package installs the systemd units and
+  service integration that bootstrap snapd. The snapd snap also contains
+  equivalent service integration, but this is only used on Ubuntu Core systems.
+- Classic Ubuntu with TPM-backed full disk encryption, available from 26.04,
+  requires a kernel snap, a base snap, and snapd for correct operation.
 
-*  each bug fix that affects the user interface must have one QA
-   review. The QA engineer will verify that the bug is fixed in a
-   system with the proposed package installed by executing an
-   automated or manual test.
+Exceptions
+----------
 
-*  all the bugs reported in Launchpad that will be fixed in this
-   release must have a link to the pull request that fixes them.
-   These bugs must be marked as "Committed" once that pull request is
-   merged into master.
+snapd falls into the following overlapping :ref:`special types of SRU
+<reference-special-types-of-sru>`. All snapd releases, regardless of the exact
+category, are required to comply with the same thorough QA process, described
+in the Quality Assurance section of `snapd updates in Ubuntu
+<https://documentation.ubuntu.com/canonical-snapd-lore/processes/snapd-updates-in-ubuntu/>`_.
 
-*  all the new user-facing features will be tested in a real system.
+Package-specific non-standard process
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   *  most of these tests are automated and executed as part of the autopkgtest suite of the deb and its reverse-dependencies in a classic ubuntu system, and as part of the automated user-acceptance suite in a snappy Ubuntu Core system.
+The following exceptions to :ref:`what is acceptable to SRU
+<reference-what-is-acceptable-to-sru>` apply to every snapd upload:
 
-   *  the tests that can't be automated are documented and manually executed when there are changes in the code that can affect the feature.
+- The SRU will be done with a single process bug, instead of individual bug
+  reports for individual bug fixes. This covers all supported interim releases
+  in standard support and all LTS releases in standard support. Releases for
+  the different targets must share the same source tree, with the only
+  difference being the additional "backport" entry at the top of
+  debian/changelog. See
+  `snapd versioning <https://github.com/cpaelzer/ubuntu-maintainers-handbook/blob/d380ce51da109f8e27db5c6606f43f253b3bcd92/VersionStrings.md#version-almost-native-packages>`_.
+- Individual bugs should be referenced in the changelog, and each bug needs to
+  be independently verified and commented on for the SRU to be considered
+  complete. Refer to the :ref:`SRU bug template <reference-sru-bug-template>`
+  for details about the required documentation.
+- Sponsors, the Ubuntu Release Team, and the SRU Team are not required to review
+  all source changes, only those related to packaging and systemd/service
+  integration. These changes must be clearly identified in the SRU bug.
+- The SRU team delegates to the snapd team responsibility for ensuring that snapd
+  updates delivered as debs or snaps, together with re-execution, automatic
+  installation, and refresh behaviour, continue to meet Ubuntu release stability
+  expectations throughout the lifetime of each supported Ubuntu release. As part
+  of this responsibility, the snapd team may determine the optimal release order
+  of snapd deb and snap updates for each release, since this can affect which
+  snapd version is executed on a system.
+- When the SRU team accepts an upload into *-proposed*, it applies
+  *block-proposed-<series>* so the upload is not promoted to *-updates* on its
+  own. The SRU team removes the block when the snapd team is ready to release.
 
-*  when a new version is ready to be proposed, the QA team will
-   perform extensive exploratory testing on the areas that will be
-   changed by the release.
+.. _ref_revert:
 
+- If a regression affecting Classic systems occurs, the SRU team may require a
+  high-priority fix from the snapd team. The snapd team will select the most
+  appropriate mitigation, such as a snapd deb-only update, a store-based snap
+  revert, or a snap update, and is responsible for timely implementation and
+  internal and public communication. Launchpad must be used as the primary
+  means of communication and coordination.
+- The snapd team is responsible for identifying invasive changes affecting
+  Classic systems, including changes to documented re-execution or update
+  behaviour, or changes that impact backward compatibility, and must bring such
+  changes to the Technical Board for review before they are introduced.
 
-Snapd Packaging QA
-------------------
+New bugfix-only upstream release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The resulting package, with all the changes in place, must undergo and
-pass the following additional QA procedures:
+Regular minor releases, as required to fix bugs.
 
-*  upgrade test from previous version of the package. This test must
-   be performed with:
+New upstream release that adds features without breaking existing behaviour
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   *  ``apt install/upgrade``
+These updates are designed so existing behaviour does not
+break. A feature that is not ready to be on by default stays behind an
+experimental flag until the snapd architect enables
+it.
 
-*  test interaction with classic apt install and update of debs to
-   make sure that snapd doesn't interfere with the classic system:
+- Regular major releases align with a full upstream release, typically 150-250
+  pull requests, about half of which are test-related, and introduce complete
+  or partial features alongside bug fixes and interface extensions.
+- Regular minor releases may include low risk interface extensions that do not
+  expose new hardware.
 
-   *  reboot.
+Hardware enablement
+^^^^^^^^^^^^^^^^^^^
 
-   *  install and update a deb with apt.
+Some new interfaces give snaps access to hardware they could not use before.
+That is :ref:`hardware enablement <reference-criteria-hardware>`: it must not
+affect systems that already work. The same kind of interface change also
+opens access to files, content, and other resources. Those additions are
+unused until a snap is connected to them, so existing behaviour stays as it
+is.
 
-*  test interaction with gnome software center:
+Non-standard package behaviour
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   *  install and update a snap.
+.. _ref_reexecution:
 
-   *  install and update a deb.
+- When the first snap is installed through the snapd deb, the snapd snap itself is
+  also installed, and the deb then re-executes into it. The snapd snap is kept up
+  to date through auto-refresh, ensuring that snapd always runs with the latest
+  features and fixes, and maintains consistency across Ubuntu releases regardless
+  of the host distribution’s update cadence.
+- Because the deb re-executes into an equal or newer snap, reverting or
+  downgrading the deb leaves that snap running.
 
-The above tests can be performed by any QA engineer.
+Review
+------
 
-This is a package new in Ubuntu 16.04 LTS. Once we have another stable
-Ubuntu version released this should be added to the above process:
+The SRU team does not review the upstream changes. It confirms that the upload
+matches the release tag except for the additional Go and C vendoring, and it
+reviews the packaging and systemd/service integration changes identified in the
+SRU bug.
 
-*  upgrade test from previous distribution to the current one. If the
-   current distribution is an LTS one, the upgrade path from the
-   previous LTS distro must also be exercised.
+Across the targeted releases, the source tarballs and vendored dependencies
+match, and the changelogs differ only by the backport entry.
 
+Each Launchpad bug that is relevant to Ubuntu uses the :ref:`SRU bug template
+<reference-sru-bug-template>` and is verified in *-proposed*. The SRU team
+checks that the release testing listed in the :ref:`SRU template
+<ref_sru_template>` passed. On acceptance into *-proposed*, the SRU team
+applies *block-proposed-<series>* and removes it when the snapd team is ready
+to release.
 
-Snapd Requesting the SRU
-------------------------
+.. _ref_sru_template:
 
-The SRU should be requested as usual
-(:ref:`StableReleaseUpdates <howto-perform-standard-sru>`) with the description
-of the bug containing links to automatic testing results (travis unit
-test, jenkins autopkg tests, and jenkins integrations tests) so that any
-one can verify the testing occurred and its results. Additionally, the
-SRU bug should be verbose in documenting any manual testing that occurs
-an example of a good SRU bug can be found in
-http://launchpad.net/bugs/1588052. The SRU should be done with a single
-process bug for this stable release exception, instead of individual bug
-reports for individual bug fixes. However, individual bugs may be
-referenced in the from the changelog but **each** of those bugs will
-need to independently verified and commented on for the SRU to be
-considered complete.
+SRU Template
+------------
+
+Sponsoring Request
+^^^^^^^^^^^^^^^^^^
+
+This refers to the "single process bug" that links to one or more Launchpad
+bugs associated with the release.
+
+.. code-block::
+
+ This is a new snapd release.
+ snapd [bugfix only] release 2.XX[.X] should be released to:
+ - [Development Release]
+ - [Latest LTS]
+ - ... -
+ - [Oldest LTS]
+
+ The snapd package deviates from the standard SRU process. The following special
+ SRU process was followed:
+ https://documentation.ubuntu.com/sru/en/latest/reference/exception-Snapd-Updates
+
+ Release preparation: <Github release PR URL> Release preparation test results:
+ <Github release PR test results URL>
+
+ Release notes: < Changelogs commit URL > Launchpad bugs addressed:
+ <URL(filter)>
+
+ Packaging and systemd/service integration changes:
+  - [Packaging changes]
+  - [Systemd/service integration changes]
+
+ Content overview:
+  - [Features]
+  - [Bug fixes]
+  - [Hardware enablement]
+  - [Other interface extensions]
+  - [Other]
+
+ Areas of potential regressions:
+  - <Potential regression | <URLs to relevant PR(s)>
+
+ Source packages on `ppa:snappy-dev/image` for upload to `-proposed`:
+  - <Development Release URL>
+  - <Interim release URL>
+  - <Latest LTS URL>
+  - ...
+  - <Oldest LTS URL>
+
+ Validation already completed:
+  - Release PR test results: <URL to relevant PR>
+  - QA beta validation: <JIRA URL>
+  - snapd deb testing on `ppa:snappy-dev/image`: <JIRA URL>
+
+ Validation required before release:
+  - Autopkgtests on `-proposed` for all targeted releases
+  - snapd deb testing on `-proposed`
+  - snapd snap testing
+
+Sponsoring Request Final Test Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following updates from the snapd team are required before considering
+releasing to *-updates*:
+
+.. code-block::
+
+ - Autopkgtests on `-proposed` for all targeted releases: <RESULT>
+ - snapd deb testing on `-proposed`: <RESULT>
+ - snapd snap testing: <RESULT>
+
+Associated Launchpad Bugs
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This refers to the linked LP bugs in "Launchpad bugs addressed" in the
+above Sponsoring Request template. This should be added in the bug description
+above the original comment.
+
+In the case where the issue is covered by automated testing, this should be
+explicitly mentioned with links to:
+ - link to the relevant test
+ - link to the Release PR where it was exercised
+ - still include manual verification steps as well
+
+Ubuntu Core only Launchpad bugs do not require Launchpad bug verification.
+Clearly indicate if a Launchpad bug is Ubuntu Core only.
+
+.. code-block::
+
+ [SRU <version>](https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/<URL>)
+
+ [ Impact ]
+
+ [ Test Plan ]
+
+  1. Reproduce on reported snapd version <reported snapd version>
+
+   [steps]
+
+  2. Confirm fix on <candidate snapd version>
+
+   [steps]
+
+ [ Where problems could occur ]
+
+ [ Other Info ]
+
+ --- original ---
 
 Related SRU Interest Team
 -------------------------
 
-Snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`.
-Please subscribe the
-`Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`__
+snapd has a :ref:`SRU Interest Team <reference-sru-interest-team>`,
+please subscribe the
+`Interest group <https://launchpad.net/~sru-verification-interest-group-snapd>`_
 to the SRU bug early on.
