@@ -137,6 +137,11 @@ corrections. It is expected that candidates will go through an initial learning 
 mentors and sponsors; uploads made during that phase that required substantial revision do
 not count toward these minimums.
 
+:::{warning}
+The candidate **MUST enumerate** the requirements listed above in their
+application.
+:::
+
 Moreover, applicants must possess the knowledge highlighted in the
 {ref}`member profile <dkms-member-profile>` section.
 
@@ -147,5 +152,8 @@ Moreover, applicants must possess the knowledge highlighted in the
 Once you have all of the above requirements ready, becoming a member of the team follows
 the normal {ref}`Developer Membership Board application process <dmb-application>`.
 
-In your DMB application page, link to this page and state that you have followed this
-guidance, and that you are aware of and fulfil the expectations outlined above.
+:::{warning}
+In your DMB application page, you **MUST** link to this page and state that you
+have followed this guidance, and that you are aware of and fulfil the
+expectations outlined above.
+:::
