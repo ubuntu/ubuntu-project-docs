@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+foundations-team
 rocks-team
 hpc-team
 ```
@@ -20,7 +21,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 | [Desktop team](https://wiki.ubuntu.com/DesktopTeam) | Handle all the packages that go into the Ubuntu desktop installation |
 | {ref}`HPC team <hpc-team>` | The Ubuntu High-Performance Computing (HPC) team aims to provide the highest quality HPC infrastructure, applications, and user experience for the Ubuntu ecosystem |
 | [Kernel team](https://wiki.ubuntu.com/KernelTeam) | Maintain the Linux kernel in Ubuntu |
-| [Foundations team](https://wiki.ubuntu.com/FoundationsTeam) | Deliver the core Ubuntu system, common to the whole Ubuntu family of products and services, i.e. plumbing |
+| {ref}`Foundations team <foundations-team>` | Deliver the core Ubuntu system, common to the whole Ubuntu family of products and services, i.e. plumbing |
 | [QA team](https://wiki.ubuntu.com/QATeam) | Develop tools, policies, and practices for ensuring Ubuntu's quality as a distribution as well as providing general advice, oversight, and leadership of QA activities within the Ubuntu project |
 | {ref}`release-team` | The Release Team helps bring together all the essential building blocks for every Ubuntu release |
 | {ref}`Rocks community <rocks-team>` | The Rocks Community is your hub for exploring Ubuntu Rocks and everything "containers" |
