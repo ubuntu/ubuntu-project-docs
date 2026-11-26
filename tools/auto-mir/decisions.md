@@ -5823,3 +5823,61 @@ Catalog validation clean for both roles.
     `openssh-gssapi]`, fails closed headless listing both candidates).
     `make lint`'s ruff binary was unavailable in the dev container — the
     reviewer must run `make lint` before merging.
+
+## 2026-11-26 — Rust vendoring policy softening (issue 872): go/rust stance unification
+
+- Promotion: yes
+- Context: [ubuntu-project-docs#872](https://github.com/ubuntu/ubuntu-project-docs/issues/872)
+  requested that rust code in main no longer *must* vendor its dependencies:
+  prefer Ubuntu rust packages, allow vendoring when the unpackaged dependency
+  set cannot be packaged in the time available. The catalog still carried the
+  old "expectation is to vendor (and own/test) all dependencies" stance in
+  `RULE[maint-rust-vendoring]`, `REP-MAINT-007`'s only rust outcome asserted
+  "vendors all non language-runtime dependencies", and reviewer-side
+  `ESL-10`'s ok message claimed "all dependencies vendored" — the tool wording
+  would NACK-by-implication exactly the packages the new policy wants. The
+  issue discussion (see the link for the infeasibility examples, e.g.
+  large transitive dependency sets) also noted that the Ubuntu Rust toolchain
+  team will own a set of common library packages, so the first package of a
+  kind should not be expected to own and MIR the whole dependency tree. The
+  same issue discussion is the background for why vendoring stays an accepted
+  fallback rather than being banned outright.
+- Decision:
+  - Since go and rust now share the same stance ("prefer archive packages,
+    vendoring acceptable with documented reasoning and security approval"),
+    the reviewer-side rust Built-Using clause and the golang "expected 1-3"
+    list would have stated one policy twice. They are merged into one tagged
+    clause `RULE[review-go-rust-dep-sourcing]`; `review-rust-built-using` is
+    retired. ESL-4/5/6/7 keep `review-golang-static-builds` (history, static
+    build guidance, dh-golang questions) and additionally cover the new
+    clause; ESL-1/8/9/10 point at the new clause; the shared "not required to
+    remove unused embedded code copies" bullet and the vendoring TODO pair
+    moved under it so they visibly apply to both languages.
+  - Reporter-side `RULE[maint-rust-vendoring]` is rewritten to the new stance,
+    and `maint-vendored-obligations`' golang-scoped security-update and
+    no-change-rebuild commitment bullets now name packaged `rust-<crate>`
+    library packages as well — dh-cargo generates the same Built-Using
+    tracking for them.
+  - `REP-MAINT-007` (retitled "Rust dependency sourcing and tracking") gains a
+    packaged-crates TODO option beside the vendored one; the `rust-vendoring`
+    evaluator keeps the missing-Cargo.lock blocker (tracking is a must in
+    both worlds — the go.sum equivalent) but its statement now names the
+    shipped vendored directories (or their absence) so the reporter is
+    pointed at the template option matching reality.
+  - Deliberately unchanged: ESL-9 (dh_cargo) stays `blocker_class: hard`
+    because it is the only supported rust packaging path and the
+    XS-Vendored-Sources-Rust machinery depends on it; ESL-10's deterministic
+    logic (Cargo.lock present, no unexpected Built-Using) is untouched —
+    only its wording no longer asserts that everything is vendored.
+  - `docs/MIR/mir-rust.md` intro and vendoring-section lead-in updated to the
+    same stance so the hand-written page no longer contradicts the templates.
+- Consequences:
+  - A rust package building against packaged crates now has a truthful
+    template option on both the reporter and reviewer sides, and reviewers
+    apply one consistent go/rust stance across ESL-1/6/10 instead of mixed
+    must/should messaging.
+  - Validation from `tools/auto-mir`: `make test` PASS (1124 passed,
+    1 skipped) after the change; the five failing `test_prf_10_*` /
+    `test_prf_11_*` tests are pre-existing on clean HEAD (catalog PRF wording
+    changed without updating those tests) and are not addressed here. Docs
+    build (`make -C docs html`) succeeds warning-free.
