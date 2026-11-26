@@ -168,6 +168,9 @@ Check accessibility <check-accessibility>
 Contribute docs <contribute-docs>
 ```
 
+Community guides and tips that don't fit in this documentation can go on the
+[Ubuntu wiki](https://wiki.ubuntu.com/Main_page).
+
 
 ## Setting up and using Matrix
 
