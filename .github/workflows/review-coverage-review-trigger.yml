@@ -1,0 +1,23 @@
+# Carrier for review events: the PR number is passed to the workflow_run
+# worker via artifact, because review events on fork PRs carry a read-only
+# token. This workflow does nothing else; it is never allowed to write.
+name: Review coverage review trigger
+
+on:
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions: {}
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write PR number
+        run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
+      - name: Upload PR number
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: review-coverage-pr-${{ github.event.pull_request.number }}
+          path: pr_number.txt
+          retention-days: 1
