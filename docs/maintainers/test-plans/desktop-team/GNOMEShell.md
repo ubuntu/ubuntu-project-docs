@@ -3,6 +3,9 @@
 
 Below are the test cases that should be run when `gnome-shell` is updated to new major releases in the development version of Ubuntu. These should also be run for all `gnome-shell` Stable Release Updates.
 
+:::{note}
+Automated tests are defined for GNOME Shell [in the `ubuntu-gui-testing` repository](https://github.com/canonical/ubuntu-gui-testing/tree/main/tests/gnome-shell) using the YARF framework.
+:::
 
 ## Test case 1
 

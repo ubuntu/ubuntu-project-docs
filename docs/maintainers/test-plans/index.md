@@ -12,17 +12,9 @@ Test plans for various SRUs were previously held on the Ubuntu wiki. If you need
 :glob:
 
 desktop-team/*
+Legacy test plans <desktop-team/legacy/index>
 ```
 
+### Test automation
 
-(desktop-team-legacy-test-plans)=
-## Legacy tests
-
-These test plans cover components that were once part of the `main` repository but have since been removed from Ubuntu or replaced by another component. They're kept for reference when working with older Ubuntu LTS releases.
-
-```{toctree}
-:titlesonly:
-:glob:
-
-desktop-team/legacy/*
-```
+Additional desktop test plans exist as automated tests. Refer to the [`canonical/ubuntu-gui-testing`](https://github.com/canonical/ubuntu-gui-testing) repository.

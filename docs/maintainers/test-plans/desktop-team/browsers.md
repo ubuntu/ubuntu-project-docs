@@ -10,6 +10,9 @@ This is a common test plan shared across all of Ubuntu's browser packages.
 
 Currently, we only test Chromium downstream: see {ref}`chromium <Chromium-test-plan>`. Firefox is tested by Mozilla.
 
+:::{note}
+Automated tests are defined for Firefox [in the `ubuntu-gui-testing` repository](https://github.com/canonical/ubuntu-gui-testing/tree/main/tests/firefox-example) using the YARF framework.
+:::
 
 ## Initial setup
 
