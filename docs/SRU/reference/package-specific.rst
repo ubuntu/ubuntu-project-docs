@@ -70,6 +70,7 @@ the Technical Board.
     exception-UbuntuAdvantageTools-Updates
     exception-UbuntuDevTools-Updates
     exception-UbuntuImage-Updates
+    exception-UbuntuProForWSL-Updates
     exception-Virtualbox-Updates
     exception-autopkgtest-Updates
     exception-ec2-hibinit-agent-Updates
