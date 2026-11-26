@@ -5,6 +5,7 @@
 :maxdepth: 1
 :hidden:
 
+translation-team
 rocks-team
 hpc-team
 ```
@@ -44,7 +45,7 @@ Below is a list of key teams that operate within the Ubuntu project and their re
 |Team name | Responsibility |
 | --- | --- |
 | [Accessibility team](https://wiki.ubuntu.com/AccessibilityTeam) | Improve the accessibility technology and support available with Ubuntu, and provide outreach |
-| [Translation team](https://wiki.ubuntu.com/TranslationTeam) | Co-ordinate the translation of Ubuntu into many languages |
+| {ref}`Translation team <translation-team>` | Co-ordinate the translation of Ubuntu into many languages |
 
 
 ## Communication and news teams
