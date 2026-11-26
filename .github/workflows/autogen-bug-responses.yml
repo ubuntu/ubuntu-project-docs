@@ -1,0 +1,84 @@
+name: Bug Responses Generation
+
+# Runs every Monday at 12:00 UTC and can also be triggered manually.
+on:
+  schedule:
+    - cron: "0 12 * * 1"
+  workflow_dispatch:
+    inputs:
+      force:
+        type: boolean
+        default: false
+        description: "Forcefully run bug-response generation"
+
+jobs:
+  autogen-responses:
+    name: Generate Bug Responses
+    runs-on: ubuntu-latest
+    env: { CONFIG_VENDOR: vendors/ubuntu-qa-tools }
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Restore Commit Cache
+        uses: actions/cache/restore@v6
+        with:
+          path: vendors-commit.txt
+          key: state-cache-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            state-cache-
+
+      - name: Read Commit Cache
+        id: cached-commit
+        if: ${{ !inputs.force }}
+        run: |
+          if [ -f vendors-commit.txt ]; then
+            echo "sha=$(cat vendors-commit.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "sha=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pre-Flight Validation
+        id: cloned-commit
+        run: |
+          git clone --depth 1 https://git.launchpad.net/ubuntu-qa-tools ${{ env.CONFIG_VENDOR }}
+          RESPONSES_COMMIT=$(git -C ${{ env.CONFIG_VENDOR }} rev-parse HEAD) # resolve the commit
+
+          if [ "$RESPONSES_COMMIT" = "${{ steps.cached-commit.outputs.sha }}" ]; then
+              echo "Already generated bug-responses for commit: $RESPONSES_COMMIT"
+              echo "sha=" >> $GITHUB_OUTPUT # output an empty hash for brevity
+          else
+            # ensure we output the cloned-commit hash to cache later
+            echo "sha=$RESPONSES_COMMIT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run the Bug Response Generator
+        if: ${{ steps.cloned-commit.outputs.sha != '' }}
+        uses: ./.github/actions/autogen-bug-responses
+
+      - name: Write Commit Cache
+        if: ${{ steps.cloned-commit.outputs.sha != '' }}
+        run: |
+          echo "${{ steps.cloned-commit.outputs.sha }}" > vendors-commit.txt
+
+      - name: Save Commit Cache
+        if: ${{ steps.cloned-commit.outputs.sha != '' }}
+        uses: actions/cache/save@v6
+        with:
+          path: vendors-commit.txt
+          key: state-cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: "main"
+          delete-branch: true
+          branch: "chore/autogen-bug-responses"
+          title: "chore: automated bug-responses update"
+          commit-message: "chore: automated bug-responses update"
+          add-paths: docs/contributors/bug-triage/bug-responses.md
