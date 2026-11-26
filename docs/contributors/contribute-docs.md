@@ -33,6 +33,14 @@ Remember to first check the
 our documentation and make your proposal based on that revision.
 
 
+## Contribute to the Ubuntu wiki
+
+The [Ubuntu wiki](https://wiki.ubuntu.com/Main_page) is a community space for
+guides, tips and specialist pages that don't fit in this documentation. Before
+you edit or add a wiki page, read the
+[wiki editing guide](https://wiki.ubuntu.com/Help:Editing).
+
+
 ## Contribute on GitHub
 
 If you are familiar with a Git development workflow, `fork` the
