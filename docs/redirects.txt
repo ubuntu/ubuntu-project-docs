@@ -126,6 +126,7 @@ how-to/merge-a-package/ contributors/merging/
 contributors/advanced/merge-a-package/ contributors/merging/
 
 contributors/merging/submit-merge-proposal/ contributors/merging/git-ubuntu-merge-proposal/
+contributors/merging/fix-the-changelog/ contributors/merging/review-the-changelog/
 
 contributors/index-new-package/ contributors/new-package/
 
