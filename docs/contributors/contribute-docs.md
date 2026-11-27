@@ -7,6 +7,14 @@ Documentation Academy has helpful resources to
 [get you started](https://documentation.academy/docs/howto/get-started/).
 
 
+## Contribute to the Ubuntu wiki
+
+The [Ubuntu wiki](https://wiki.ubuntu.com/Main_page) is a community space for
+guides, tips and specialist pages that don't fit in this documentation. Before
+you edit or add a wiki page, read the
+[wiki editing guide](https://wiki.ubuntu.com/Help:Editing).
+
+
 ## Report an issue
 
 To report a mistake on any page, or highlight some missing documentation,
@@ -31,14 +39,6 @@ you can start editing.
 Remember to first check the
 [latest version](https://documentation.ubuntu.com/project/) of
 our documentation and make your proposal based on that revision.
-
-
-## Contribute to the Ubuntu wiki
-
-The [Ubuntu wiki](https://wiki.ubuntu.com/Main_page) is a community space for
-guides, tips and specialist pages that don't fit in this documentation. Before
-you edit or add a wiki page, read the
-[wiki editing guide](https://wiki.ubuntu.com/Help:Editing).
 
 
 ## Contribute on GitHub
