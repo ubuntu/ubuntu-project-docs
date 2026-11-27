@@ -8,12 +8,23 @@
 
 
 
-Due to the current state of the Rust ecosystem, the MIR rules state that
-packages in main that contain Rust code should vendor their Rust dependencies
-rather than rely on the individual package versions.
+Rust packages in main prefer to build against packaged Rust crates from the
+Ubuntu archive. The Rust toolchain team owns and maintains a growing set of
+common library packages for easy reuse, so the first package of a kind does
+not need to own and MIR the entire dependency tree. The
+[Ubuntu Rust Packaging team](https://launchpad.net/~ubuntu-rust-packaging)
+helps to track bugs and issues in Launchpad associated with Rust packages in
+main.
 
-See [`cpaelzer/ubuntu-mir#3`](https://github.com/cpaelzer/ubuntu-mir/pull/3) for
-some background on the issue.
+Vendoring is not required. Avoid it if you can, but it is acceptable and
+understood when the number of non-packaged Rust dependencies cannot be made available
+in the time available. If a package vendors its Rust dependencies, all rules
+for vendored builds apply to it (see the MIR templates).
+
+See [ubuntu-project-docs#872](https://github.com/ubuntu/ubuntu-project-docs/issues/872)
+for the background of this policy, and
+[`cpaelzer/ubuntu-mir#3`](https://github.com/cpaelzer/ubuntu-mir/pull/3) for
+some background on the original issue.
 
 Additionally, Rust code that needs Transport Layer Security (TLS) {ref}`must use OpenSSL <rust-tls-requirements>`
 to ensure that system cryptography policies are followed.  This requirement will
@@ -21,6 +32,7 @@ change as the Rust TLS ecosystem matures.
 
 ## Vendoring Rust dependencies
 
+Vendoring is the fallback for dependencies that cannot be packaged in time.
 It's a simple matter of running `cargo vendor debian/rust-vendor/` where you're
 on the top-level directory. Sadly, it's not possible to exclude irrelevant
 dependencies during vendoring yet, so you might want to automate that step and

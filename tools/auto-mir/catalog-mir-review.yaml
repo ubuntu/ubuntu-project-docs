@@ -152,22 +152,41 @@ metadata:
   - 'RULE: - If debian/control uses `Built-Using` or `Static-Built-Using:` it may'
   - 'RULE:   indicate static linking'
   - 'RULE:   which should be discouraged (except golang/rust, see below)'
-  - 'RULE[review-rust-built-using]:   - Rust - toolchain and dh tools are still changing a lot. Currently it'
-  - 'RULE:     is expected to only list the rust toolchain in `Built-Using`.'
-  - 'RULE:     the remaining (currently vendored) dependencies shall be tracked'
-  - 'RULE:     in a Cargo.lock file'
-  - 'RULE:   - Go - here `Built-Using` is expected to only contain the go'
-  - 'RULE:     toolchain used to build it. Additional packaged dependencies'
-  - 'RULE:     will be tracked in `Static-Built-Using:` automatically.'
-  - 'RULE:     The superset of packaged and vendored (if used) dependencies shall be'
-  - 'RULE:     tracked in a go.sum file (go.mod are direct dependencies, go.sum'
-  - 'RULE:     covers checksum content for direct and indirect dependencies. This'
-  - 'RULE:     should be present for reproducible builds already which involve'
-  - 'RULE:     having a go.sum.'
-  - 'RULE:     We have let go packages into main before this existed, so we have'
-  - 'RULE:     sub-optimal prior-art. But down the road - if vendoring is used - we'
-  - 'RULE:     want to switch to require that once the toolchain is ready to'
-  - 'RULE:     create it accordingly.'
+  - 'RULE[review-go-rust-dep-sourcing]: - Go and Rust packages embed their dependencies into static'
+  - 'RULE:   builds by default. The MIR stance for both is the same:'
+  - 'RULE:   - Prefer building against language library packages from the'
+  - 'RULE:     Ubuntu archive (`golang-*-dev`, `rust-<crate>` sources —'
+  - 'RULE:     including the set of common library packages owned by the'
+  - 'RULE:     Ubuntu Rust toolchain team). This requirement ensures that the'
+  - 'RULE:     security team is able to track security issues for all affected'
+  - 'RULE:     static binary packages via `Built-Using`/`Static-Built-Using:`'
+  - 'RULE:     and can fix an issue once and trigger rebuilds of the rest.'
+  - 'RULE:   - Vendoring is not required, but it is acceptable and understood'
+  - 'RULE:     when packaging the unpackaged dependencies in the time available'
+  - 'RULE:     is not feasible. In that case the reasoning is clearly documented'
+  - 'RULE:     in the MIR bug by the requesting team and the security team needs'
+  - 'RULE:     to approve (test-only embedded code is ok). This requirement'
+  - 'RULE:     ensures that the security team is able to track security issues'
+  - 'RULE:     for all affected source packages.'
+  - 'RULE:   - Only build against approved vendored sources (when applicable).'
+  - 'RULE:     If new versions add new components or dependencies in'
+  - 'RULE:     subsequent Ubuntu uploads this will need re-evaluation by the'
+  - 'RULE:     security team.'
+  - 'RULE:   - `Built-Using` is expected to only list the language toolchain;'
+  - 'RULE:     additional packaged dependencies are tracked in'
+  - 'RULE:     `Static-Built-Using:` automatically.'
+  - 'RULE:   - The superset of packaged and vendored (if used) dependencies'
+  - 'RULE:     shall be tracked in a go.sum / Cargo.lock file (go.mod lists'
+  - 'RULE:     direct dependencies only; go.sum covers checksums for direct and'
+  - 'RULE:     indirect dependencies). This should be present for reproducible'
+  - 'RULE:     builds already.'
+  - 'RULE:   - As a practical matter, go/rust source packages in main are not'
+  - 'RULE:     required to remove unused embedded code copies.'
+  - 'RULE:   - Rust specifics: toolchain and dh tools are still changing a lot,'
+  - 'RULE:     the rules for rust based packages are preliminary and might'
+  - 'RULE:     change as the ecosystem matures. Rust builds are expected to use'
+  - 'RULE:     dh-cargo (dh ... --buildsystem cargo) so that a later switch'
+  - 'RULE:     between vendored and packaged dependencies isn''t too complex.'
   - ''
   - 'OK:'
   - check: ESL-1
@@ -176,6 +195,9 @@ metadata:
     todo_ref: 0
   - check: ESL-3
     todo_ref: 0
+  - ''
+  - 'TODO-A:   - vendoring is used, but the reasoning is sufficiently explained'
+  - 'TODO-B:   - No vendoring used, all Built-Using are in main'
   - ''
   - 'RULE[review-golang-static-builds]: Golang'
   - 'RULE: - golang 1.4 packages and earlier could only statically compile their'
@@ -189,32 +211,17 @@ metadata:
   - 'RULE: - Evaluating cost/benefits while considering the ABI instability of golang'
   - 'RULE:   libraries during this period, the MIR team decided for 17.10 and later'
   - 'RULE:   to allow static builds of golang packages in main, so long as the number'
-  - 'RULE:   of these packages remains low and they follow the guidelines below:'
-  - 'RULE:   - golang applications in main are expected:'
-  - 'RULE:       1. to build using `golang-*-dev` packages from the Ubuntu archive'
-  - 'RULE:          creating `Built-Using` in debian/control. This requirement ensures'
-  - 'RULE:          that the security team is able to track security issues for all'
-  - 'RULE:          affected static binary packages'
-  - 'RULE:       2. not to build any vendored (i.e. embedded) code in the source'
-  - 'RULE:          package whose binaries appear in the archive (e.g. test code is'
-  - 'RULE:          ok) without clear justification from the requesting team and'
-  - 'RULE:          approval from the security team. This requirement ensures that'
-  - 'RULE:          the security team is able to track security issues for all'
-  - 'RULE:          affected source packages.'
-  - 'RULE:       3. only build against approved vendored sources (when applicable).'
-  - 'RULE:          If new versions add new components or dependencies in subsequent'
-  - 'RULE:          Ubuntu uploads this will need re-evaluation by the security'
-  - 'RULE:          team. This requirement ensures that the security team is able'
-  - 'RULE:          to track security issues for all affected source packages.'
-  - 'RULE: - The intended outcomes from the above requirements (if not vendored) are'
+  - 'RULE:   of these packages remains low and they follow the go/rust stance above.'
+  - 'RULE: - We have let go packages into main before go.sum tracking was'
+  - 'RULE:   established, so we have sub-optimal prior-art for those.'
+  - 'RULE: - The intended outcomes from the above stance (if not vendored) are'
   - 'RULE:   for packages in main to standardize on particular versions of'
   - 'RULE:   `golang-*-dev` packages (when possible) with the requesting team'
   - 'RULE:    adjusting their packaging as necessary, all teams responsible for'
-  - 'RULE:    golang packages coordinating on transitions and the requesting team'
-  - 'RULE:    occasionally creating new `golang-*-dev` packages as agreed to in the'
-  - 'RULE:    MIR bug (upstreaming to Debian whenever possible).'
-  - 'RULE: - As a practical matter, golang/rust source packages in main are not'
-  - 'RULE:   required to remove unused embedded code copies.'
+  - 'RULE:   golang packages coordinating on transitions and the requesting team'
+  - 'RULE:   occasionally creating new `golang-*-dev` packages as agreed to in the'
+  - 'RULE:   MIR bug (upstreaming to Debian whenever possible). The same applies to'
+  - 'RULE:   creating new `rust-<crate>` packages for rust based packages.'
   - 'RULE: - If based on the above options it''s a statically compiled golang package:'
   - 'RULE:   - Does the package use dh-golang (if not, suggest dh-make-golang to'
   - 'RULE:     create the package)?'
@@ -232,17 +239,15 @@ metadata:
   - check: ESL-4
     todo_ref: 1
   - ''
-  - 'TODO-A:   - vendoring is used, but the reasoning is sufficiently explained'
-  - 'TODO-B:   - No vendoring used, all Built-Using are in main'
-  - ''
   - 'TODO-A:   - golang: shared builds'
   - 'TODO-B:   - golang: static builds are used, the team confirmed their commitment'
   - 'TODO-B:     to the additional responsibilities implied by static builds.'
   - ''
   - check: ESL-8
     todo_ref: 0
-  - 'TODO-B: - Rust package that has all dependencies vendored. It does neither'
-  - 'TODO-B:   have *Built-Using (after build). Nor does the build log indicate'
+  - 'TODO-B: - Rust package with its dependency set (packaged or vendored)'
+  - 'TODO-B:   tracked in Cargo.lock. It does neither have unexpected'
+  - 'TODO-B:   *Built-Using (after build). Nor does the build log indicate'
   - 'TODO-B:   built-in sources that are missed to be reported as Built-Using.'
   - ''
   - check: ESL-9
@@ -771,6 +776,7 @@ checks:
   blocker_class: hard
   covers_rule_clauses:
   - review-embedded-static-linking-burden
+  - review-go-rust-dep-sourcing
   adapters_required:
   - packaging-source
   - fetch-build
@@ -778,7 +784,7 @@ checks:
     unknown_message: Could not collect packaging source and fetch-build output
     unknown_todo: 'TODO: - Check for embedded source (evidence collection failed)'
     not_ok_message: 'Embedded source present and used in build: {embedded_dirs}'
-    not_ok_todo: 'TODO: - Embedded source found and used in build — either remove and use archive packages, or get security team sign-off. Dirs: {embedded_dirs}'
+    not_ok_todo: 'TODO: - Embedded source found and used in build — prefer removing it and using archive packages; for go/rust vendoring is acceptable if the reasoning is documented and the security team signs off. Dirs: {embedded_dirs}'
     ok_built_using_message: 'Built-Using entries present but no embedded source was detected in the package source'
     ok_message: no embedded source present or not used in build
     llm_unavailable_message: 'LLM unavailable: {error}'
@@ -808,7 +814,7 @@ checks:
        - EMBEDDED BUT UNUSED: Embedded source detected but NOT referenced in build. Status: ok, severity: ok
          (Include message: "Embedded source present in {dirs}, but not used in build")
        - EMBEDDED AND USED: Embedded source detected AND used in build. Status: not-ok, severity: required
-         (Include message: "Embedded source present in {dirs}, used in build — must remove and use archive packages or get security team sign-off")
+         (Include message: "Embedded source present in {dirs}, used in build — prefer removing it and using archive packages; for go/rust vendoring is acceptable if the reasoning is documented and the security team signs off")
 
     If debian/control contains Built-Using or Static-Built-Using entries, note this context but do not treat it as
     automatic justification (ESL-3 handles Built-Using validation separately).
@@ -878,6 +884,7 @@ checks:
   language_gate: go
   blocker_class: none
   covers_rule_clauses:
+  - review-go-rust-dep-sourcing
   - review-golang-static-builds
   adapters_required:
   - packaging-source
@@ -915,6 +922,7 @@ checks:
   language_gate: go
   blocker_class: soft
   covers_rule_clauses:
+  - review-go-rust-dep-sourcing
   - review-golang-static-builds
   adapters_required:
   - packaging-source
@@ -932,6 +940,7 @@ checks:
   language_gate: go
   blocker_class: none
   covers_rule_clauses:
+  - review-go-rust-dep-sourcing
   - review-golang-static-builds
   adapters_required:
   - packaging-source
@@ -960,6 +969,7 @@ checks:
   language_gate: go
   blocker_class: none
   covers_rule_clauses:
+  - review-go-rust-dep-sourcing
   - review-golang-static-builds
   adapters_required:
   - fetch-build
@@ -1002,7 +1012,7 @@ checks:
   language_gate: rust
   blocker_class: none
   covers_rule_clauses:
-  - review-rust-built-using
+  - review-go-rust-dep-sourcing
   adapters_required:
   - packaging-source
   messages:
@@ -1021,7 +1031,7 @@ checks:
     ok_not_rust_message: []
   todo_refs:
   - 'TODO-A: - not a rust package, no extra constraints to consider in that regard'
-  - 'TODO-B: - Rust package that has all dependencies vendored...'
+  - 'TODO-B: - Rust package with its dependency set (packaged or vendored) tracked in Cargo.lock...'
   options:
   - id: ESL-8-A
     todo_ref: TODO-A
@@ -1039,7 +1049,7 @@ checks:
   language_gate: rust
   blocker_class: hard
   covers_rule_clauses:
-  - review-rust-built-using
+  - review-go-rust-dep-sourcing
   adapters_required:
   - packaging-source
   messages:
@@ -1061,22 +1071,22 @@ checks:
   ai_policy: none
 - id: ESL-10
   section: Embedded sources and static linking
-  title: 'Rust: vendored deps; no unexpected Built-Using; Cargo.lock present'
+  title: 'Rust: dependency set tracked in Cargo.lock; no unexpected Built-Using'
   mode: deterministic
   language_gate: rust
   blocker_class: hard
   covers_rule_clauses:
-  - review-rust-built-using
+  - review-go-rust-dep-sourcing
   adapters_required:
   - packaging-source
   - deb-metadata
   messages:
     unknown_message: Could not collect packaging source or binary package metadata
-    unknown_todo: 'TODO: - Verify Rust vendored deps / Cargo.lock / Built-Using'
+    unknown_todo: 'TODO: - Verify Rust dependency tracking / Cargo.lock / Built-Using'
     ok_not_rust_message: not a rust package, ESL-10 constraints not applicable
     not_ok_message: 'Rust package has issues: {problems}'
     not_ok_todo: 'TODO: - Fix Rust package issues: {problems}'
-    ok_message: 'Rust package that has all dependencies vendored. It does neither have *Built-Using (after build). Nor does the build log indicate built-in sources missed as Built-Using.'
+    ok_message: 'Rust package with its full dependency set (packaged or vendored) tracked in Cargo.lock. It does neither have unexpected *Built-Using (after build). Nor does the build log indicate built-in sources missed as Built-Using.'
   required_messages:
     unknown_message: []
     unknown_todo: []
@@ -1085,7 +1095,7 @@ checks:
     not_ok_todo: [problems]
     ok_message: []
   todo_refs:
-  - 'TODO-B: - Rust package that has all dependencies vendored. It does neither have *Built-Using...'
+  - 'TODO-B: - Rust package with its dependency set (packaged or vendored) tracked in Cargo.lock...'
   ai_policy: none
 - id: ESL-11
   section: Embedded sources and static linking

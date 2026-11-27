@@ -886,7 +886,7 @@ def _check_esl_9(ctx: RunContext, finding: Finding) -> Finding:
 
 
 def _check_esl_10(ctx: RunContext, finding: Finding) -> Finding:
-    """ESL-10: Rust: vendored deps, no unexpected Built-Using, Cargo.lock present."""
+    """ESL-10: Rust: dependency set tracked in Cargo.lock, no unexpected Built-Using."""
     resolved = _get_packaging_source_or_unknown(ctx, finding, "ESL-10")
     if resolved is None:
         return finding
