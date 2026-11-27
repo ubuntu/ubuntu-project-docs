@@ -30,7 +30,6 @@ sphinx-last-updated-by-git~=0.3
 sphinx-sitemap~=2.9
 
 # Vale dependencies
-rst2html
 vale==3.13.0.0
 
 # Custom dependencies (needed by Ubuntu Project docs)
