@@ -25,7 +25,7 @@ Luckily, there is a way to upload LLVM toolchains without disrupting other
 maintainers' uploads.
 
 
-## Binary copy from PPA
+## Current upload policy: binary copy from PPA
 
 Instead of waiting for the package to build in the `-proposed` pocket while it
 blocks other uploads, LLVM maintainers can instead build the package in a
@@ -33,9 +33,6 @@ blocks other uploads, LLVM maintainers can instead build the package in a
 to the {term}`archive`. By doing this, the LLVM toolchain upload is already
 built once it lands in `-proposed`, so it won't block any pending uploads of
 packages which rely on LLVM.
-
-
-## Current upload policy
 
 When uploading an update to an existing LLVM toolchain package, LLVM maintainers
 should build the final package version in a PPA then request a binary copy from
