@@ -17,7 +17,7 @@ helps to track bugs and issues in Launchpad associated with Rust packages in
 main.
 
 Vendoring is not required. Avoid it if you can, but it is acceptable and
-understood when the number of unpackaged Rust dependencies cannot be packaged
+understood when the number of non-packaged Rust dependencies cannot be made available
 in the time available. If a package vendors its Rust dependencies, all rules
 for vendored builds apply to it (see the MIR templates).
 
