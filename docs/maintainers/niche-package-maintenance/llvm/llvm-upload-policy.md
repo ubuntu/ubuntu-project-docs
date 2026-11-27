@@ -29,7 +29,7 @@ maintainers' uploads.
 
 Instead of waiting for the package to build in the `-proposed` pocket while it
 blocks other uploads, LLVM maintainers can instead build the package in a
-{term}`PPA`, then request their sponsor binary copy the built package directly
+{term}`PPA`, then ask their sponsor to binary copy the built package directly
 to the {term}`archive`. By doing this, the LLVM toolchain upload is already
 built once it lands in `-proposed`, so it won't block any pending uploads of
 packages which rely on LLVM.

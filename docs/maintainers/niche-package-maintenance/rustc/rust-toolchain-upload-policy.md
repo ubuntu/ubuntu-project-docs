@@ -10,7 +10,7 @@ a day and a half on `riscv64`. When uploading a Rust toolchain package, Rust
 maintainers must be aware that large packages with long build times can block
 other packages waiting to {term}`migrate <Proposed migration>`.
 
-Packages in the `-proposed` {term}`pocket` which rely on Rust to build will use
+A package in the `-proposed` {term}`pocket` which relies on Rust to build will use
 the newest toolchain version available. If a new Rust toolchain is in
 `-proposed` and currently building, that package must wait for the build to
 complete before its transition can continue, delaying its migration.
@@ -29,7 +29,7 @@ maintainers' uploads.
 
 Instead of waiting for the package to build in the `-proposed` pocket while it
 blocks other uploads, Rust maintainers can instead build the package in a
-{term}`PPA`, then request their sponsor binary copy the built package directly
+{term}`PPA`, then ask their sponsor to binary copy the built package directly
 to the {term}`archive`. By doing this, the Rust toolchain upload is already
 built once it lands in `-proposed`, so it won't block any pending uploads of
 Rust crates.
