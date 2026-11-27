@@ -27,4 +27,5 @@ Besides the guides for LLVM packaging linked below, LLVM package maintenance als
 Package LLVM <package-llvm>
 Common issues <common-llvm-package-issues>
 LLVM and Clang FAQ <llvm-and-clang-packaging-faq>
+llvm-upload-policy
 :::
