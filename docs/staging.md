@@ -19,6 +19,7 @@ staging/dmb/index-umb
 staging/partner-archive
 staging/aa-museum
 staging/not-AA
+staging/maintscripts
 ```
 
 
