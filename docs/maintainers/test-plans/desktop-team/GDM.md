@@ -49,7 +49,7 @@ In absence of a physical smart card, this test can be performed by simulating on
 **Fingerprint authentication** - _If hardware supports it_
 
 1. Configure user to enable fingerprint authentication from user session (Settings -> Users -> Fingerprint)
-2. Ensure that after the user has been selected, it's possible to log-in with fingerprint
+2. (For Ubuntu 26.04 and older only) In the log-in screen, ensure that it's possible to log-in with fingerprint
 3. Once logged in, unlocking the screen should work with fingerprint
 
 
