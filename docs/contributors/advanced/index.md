@@ -44,6 +44,13 @@ Resolve a migration issue <resolve-a-migration-issue>
 
 See the {ref}`proposed-migration` series of articles for an explanation of the process, as well as a description of common blocking issues.
 
+## Removing NBS packages
+
+```{toctree}
+:maxdepth: 1
+
+Remove NBS packages <not-built-from-source>
+```
 
 ## Seed management
 
